@@ -1,0 +1,13 @@
+# Cloned third-party sources
+/3rdparty/raylib/
+/3rdparty/JoltPhysics/
+
+# CMake-generated files and game binaries
+/build/compile_commands.json
+/build/*/*
+!/build/linux/.gitkeep
+!/build/windows/.gitkeep
+!/build/web/.gitkeep
+
+# clangd
+.cache/**
