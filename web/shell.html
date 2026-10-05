@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>raylib game jam</title>
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #bdbdbd;
+    }
+    canvas { display: block; max-width: 100vw; max-height: 100vh; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+  <script>
+    // Emscripten's generated runtime uses Module.canvas for raylib's WebGL
+    // surface. Define it before the generated script is loaded.
+    var Module = {
+      canvas: document.getElementById('canvas')
+    };
+  </script>
+  {{{ SCRIPT }}}
+</body>
+</html>

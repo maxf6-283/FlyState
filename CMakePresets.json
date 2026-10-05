@@ -1,0 +1,46 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "linux",
+      "displayName": "Linux desktop",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/linux",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "USE_JOLT": "OFF"
+      }
+    },
+    {
+      "name": "windows",
+      "displayName": "Windows desktop",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/windows",
+      "cacheVariables": {
+        "USE_JOLT": "OFF"
+      }
+    },
+    {
+      "name": "web",
+      "displayName": "WebAssembly via Emscripten",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/web",
+      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "USE_JOLT": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "linux", "configurePreset": "linux" },
+    { "name": "windows", "configurePreset": "windows", "configuration": "Debug" },
+    { "name": "web", "configurePreset": "web" }
+  ]
+}

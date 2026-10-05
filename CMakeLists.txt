@@ -1,0 +1,92 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(raylib_jam_template LANGUAGES C CXX)
+
+option(USE_JOLT "Build and link Jolt Physics from 3rdparty/JoltPhysics" OFF)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Keep one active compilation database at build/ so clangd can use
+# --compile-commands-dir=build regardless of the selected platform preset.
+set(RAYLIB_JAM_BUILD_COMPILE_COMMANDS "${CMAKE_SOURCE_DIR}/build/compile_commands.json")
+if(IS_SYMLINK "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}")
+    file(REMOVE "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}")
+endif()
+if(NOT EXISTS "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}")
+    file(CREATE_LINK
+        "${CMAKE_BINARY_DIR}/compile_commands.json"
+        "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}"
+        SYMBOLIC
+    )
+endif()
+
+set(RAYLIB_SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/raylib" CACHE PATH "Path to the raylib source tree")
+set(JOLT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/JoltPhysics" CACHE PATH "Path to the Jolt Physics source tree")
+
+if(NOT EXISTS "${RAYLIB_SOURCE_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+        "raylib was not found at ${RAYLIB_SOURCE_DIR}. Run ./scripts/setup-dependencies.sh first.")
+endif()
+
+if(EMSCRIPTEN)
+    # raylib uses this cache variable to select its Web platform backend.
+    set(PLATFORM "Web" CACHE STRING "raylib platform" FORCE)
+endif()
+
+set(BUILD_EXAMPLES OFF CACHE BOOL "Disable raylib examples" FORCE)
+set(BUILD_GAMES OFF CACHE BOOL "Disable raylib games" FORCE)
+add_subdirectory("${RAYLIB_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/raylib")
+
+if(USE_JOLT)
+    if(NOT EXISTS "${JOLT_SOURCE_DIR}/Build/CMakeLists.txt")
+        message(FATAL_ERROR
+            "Jolt Physics was not found at ${JOLT_SOURCE_DIR}. Run ./scripts/setup-dependencies.sh first, or use -DUSE_JOLT=OFF.")
+    endif()
+
+    set(BUILD_SAMPLES OFF CACHE BOOL "Disable Jolt samples" FORCE)
+    set(BUILD_TESTS OFF CACHE BOOL "Disable Jolt tests" FORCE)
+    add_subdirectory("${JOLT_SOURCE_DIR}/Build" "${CMAKE_BINARY_DIR}/jolt")
+endif()
+
+add_executable(raylib_jam "${CMAKE_SOURCE_DIR}/src/game.cpp")
+target_link_libraries(raylib_jam PRIVATE raylib)
+target_compile_features(raylib_jam PRIVATE cxx_std_20)
+
+if(USE_JOLT)
+    if(TARGET Jolt)
+        target_link_libraries(raylib_jam PRIVATE Jolt)
+    elseif(TARGET Jolt::Jolt)
+        target_link_libraries(raylib_jam PRIVATE Jolt::Jolt)
+    else()
+        message(FATAL_ERROR "Jolt was built, but no Jolt or Jolt::Jolt CMake target was found.")
+    endif()
+    target_compile_definitions(raylib_jam PRIVATE RAYLIB_JAM_HAS_JOLT=1)
+endif()
+
+if(EMSCRIPTEN)
+    set_target_properties(raylib_jam PROPERTIES SUFFIX ".html")
+    set_property(TARGET raylib_jam APPEND PROPERTY LINK_DEPENDS
+        "${CMAKE_SOURCE_DIR}/web/shell.html"
+    )
+    target_link_options(raylib_jam PRIVATE
+        "-sUSE_GLFW=3"
+        "-sWASM=1"
+        "-sASYNCIFY"
+        "-sALLOW_MEMORY_GROWTH=1"
+        "--shell-file=${CMAKE_SOURCE_DIR}/web/shell.html"
+    )
+else()
+    if(WIN32)
+        set(RAYLIB_JAM_PLATFORM windows)
+    elseif(UNIX AND NOT APPLE)
+        set(RAYLIB_JAM_PLATFORM linux)
+    else()
+        set(RAYLIB_JAM_PLATFORM desktop)
+    endif()
+    set_target_properties(raylib_jam PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${RAYLIB_JAM_PLATFORM}"
+    )
+endif()
