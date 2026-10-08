@@ -18,7 +18,7 @@ Desktop builds use the CMake presets:
 cmake --preset linux
 cmake --build --preset linux
 
-# On a machine with Visual Studio 2022:
+# On a machine with Visual Studio 2026 and CMake 4.2 or newer:
 cmake --preset windows
 cmake --build --preset windows
 ```
