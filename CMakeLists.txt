@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(raylib_jam_template LANGUAGES C CXX)
+project(flystate LANGUAGES C CXX)
 
 option(USE_JOLT "Build and link Jolt Physics from 3rdparty/JoltPhysics" OFF)
 
@@ -11,14 +11,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Keep one active compilation database at build/ so clangd can use
 # --compile-commands-dir=build regardless of the selected platform preset.
-set(RAYLIB_JAM_BUILD_COMPILE_COMMANDS "${CMAKE_SOURCE_DIR}/build/compile_commands.json")
-if(IS_SYMLINK "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}")
-    file(REMOVE "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}")
+set(flystate_BUILD_COMPILE_COMMANDS "${CMAKE_SOURCE_DIR}/build/compile_commands.json")
+if(IS_SYMLINK "${flystate_BUILD_COMPILE_COMMANDS}")
+    file(REMOVE "${flystate_BUILD_COMPILE_COMMANDS}")
 endif()
-if(NOT EXISTS "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}")
+if(NOT EXISTS "${flystate_BUILD_COMPILE_COMMANDS}")
     file(CREATE_LINK
         "${CMAKE_BINARY_DIR}/compile_commands.json"
-        "${RAYLIB_JAM_BUILD_COMPILE_COMMANDS}"
+        "${flystate_BUILD_COMPILE_COMMANDS}"
         SYMBOLIC
     )
 endif()
@@ -51,27 +51,27 @@ if(USE_JOLT)
     add_subdirectory("${JOLT_SOURCE_DIR}/Build" "${CMAKE_BINARY_DIR}/jolt")
 endif()
 
-add_executable(raylib_jam "${CMAKE_SOURCE_DIR}/src/game.cpp")
-target_link_libraries(raylib_jam PRIVATE raylib)
-target_compile_features(raylib_jam PRIVATE cxx_std_20)
+add_executable(flystate "${CMAKE_SOURCE_DIR}/src/game.cpp")
+target_link_libraries(flystate PRIVATE raylib)
+target_compile_features(flystate PRIVATE cxx_std_20)
 
 if(USE_JOLT)
     if(TARGET Jolt)
-        target_link_libraries(raylib_jam PRIVATE Jolt)
+        target_link_libraries(flystate PRIVATE Jolt)
     elseif(TARGET Jolt::Jolt)
-        target_link_libraries(raylib_jam PRIVATE Jolt::Jolt)
+        target_link_libraries(flystate PRIVATE Jolt::Jolt)
     else()
         message(FATAL_ERROR "Jolt was built, but no Jolt or Jolt::Jolt CMake target was found.")
     endif()
-    target_compile_definitions(raylib_jam PRIVATE RAYLIB_JAM_HAS_JOLT=1)
+    target_compile_definitions(flystate PRIVATE flystate_HAS_JOLT=1)
 endif()
 
 if(EMSCRIPTEN)
-    set_target_properties(raylib_jam PROPERTIES SUFFIX ".html")
-    set_property(TARGET raylib_jam APPEND PROPERTY LINK_DEPENDS
+    set_target_properties(flystate PROPERTIES SUFFIX ".html")
+    set_property(TARGET flystate APPEND PROPERTY LINK_DEPENDS
         "${CMAKE_SOURCE_DIR}/web/shell.html"
     )
-    target_link_options(raylib_jam PRIVATE
+    target_link_options(flystate PRIVATE
         "-sUSE_GLFW=3"
         "-sWASM=1"
         "-sASYNCIFY"
@@ -80,13 +80,13 @@ if(EMSCRIPTEN)
     )
 else()
     if(WIN32)
-        set(RAYLIB_JAM_PLATFORM windows)
+        set(flystate_PLATFORM windows)
     elseif(UNIX AND NOT APPLE)
-        set(RAYLIB_JAM_PLATFORM linux)
+        set(flystate_PLATFORM linux)
     else()
-        set(RAYLIB_JAM_PLATFORM desktop)
+        set(flystate_PLATFORM desktop)
     endif()
-    set_target_properties(raylib_jam PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${RAYLIB_JAM_PLATFORM}"
+    set_target_properties(flystate PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build/${flystate_PLATFORM}"
     )
 endif()
