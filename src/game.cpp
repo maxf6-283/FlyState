@@ -1,5 +1,7 @@
 #include <raylib.h>
 
+#include "screen_manager.h"
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #define RAYLIB_JAM_WEB 1
@@ -22,19 +24,18 @@ void UpdateAndDraw() {
     return;
 #endif
   }
+  ScreenManager::Get().Update();
 
   BeginDrawing();
-  ClearBackground(Color{190, 190, 190, 255});
-  DrawText("Raylib Game Jam", 32, 32, 28, DARKGRAY);
-  DrawText("Start working on the game!", 32, 72, 20, GRAY);
+  ScreenManager::Get().Draw();
   EndDrawing();
 }
 } // namespace
 
 int main() {
-  TraceLog(LOG_INFO, "Raylib Game Jam Template started: (%s)\n", BACKEND_STR);
+  TraceLog(LOG_INFO, "FlyState started: (%s)\n", BACKEND_STR);
 
-  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib game jam");
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Fly State");
   SetTargetFPS(60);
 
 #if RAYLIB_JAM_WEB

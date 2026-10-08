@@ -51,7 +51,12 @@ if(USE_JOLT)
     add_subdirectory("${JOLT_SOURCE_DIR}/Build" "${CMAKE_BINARY_DIR}/jolt")
 endif()
 
-add_executable(flystate "${CMAKE_SOURCE_DIR}/src/game.cpp")
+add_executable(flystate
+    "${CMAKE_SOURCE_DIR}/src/game.cpp"
+    "${CMAKE_SOURCE_DIR}/src/screen_manager.cpp"
+    "${CMAKE_SOURCE_DIR}/src/main_menu.cpp"
+    "${CMAKE_SOURCE_DIR}/src/button.cpp"
+)
 target_link_libraries(flystate PRIVATE raylib)
 target_compile_features(flystate PRIVATE cxx_std_20)
 
