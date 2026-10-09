@@ -5,12 +5,12 @@
 #include "scenario.h"
 
 class LevelSelect : public Scenario {
- public:
-  LevelSelect() {}
+public:
+  LevelSelect() = default;
 
-  virtual void OnEnter();
-  virtual void OnExit();
+  void OnEnter() override;
+  void OnExit() override;
 
-  virtual void Draw();
-  virtual void Update();
+  void Draw() override;
+  void Update() override;
 };
