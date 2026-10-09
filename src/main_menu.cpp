@@ -1,10 +1,11 @@
 #include "main_menu.h"
 
+#include <raylib.h>
+
 #include "button.h"
-#include "raylib.h"
 #include "screen_manager.h"
 
-void MainMenu::OnEnter() { start_button_.Reset(); }
+void MainMenu::OnEnter() { m_StartButton.Reset(); }
 
 void MainMenu::OnExit() {}
 
@@ -13,10 +14,10 @@ void MainMenu::Draw() {
   DrawText("FlyState Game Jam", 32, 32, 28, DARKGRAY);
   DrawText("Start working on the game!", 32, 72, 20, GRAY);
 
-  start_button_.Draw();
+  m_StartButton.Draw();
 }
 
-void MainMenu::Update() { start_button_.Update(); }
+void MainMenu::Update() { m_StartButton.Update(); }
 
 Button MainMenu::GetStartButton() {
   RenderTexture2D img = LoadRenderTexture(200, 100);

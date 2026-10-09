@@ -1,13 +1,11 @@
 #pragma once
 
-#include <raylib.h>
-
 #include "button.h"
 #include "scenario.h"
 
 class MainMenu : public Scenario {
- public:
-  MainMenu() : start_button_(GetStartButton()) {}
+public:
+  MainMenu() : m_StartButton(GetStartButton()) {}
 
   virtual void OnEnter();
   virtual void OnExit();
@@ -15,8 +13,8 @@ class MainMenu : public Scenario {
   virtual void Draw();
   virtual void Update();
 
- private:
-  Button start_button_;
+private:
+  Button m_StartButton;
 
   static Button GetStartButton();
   static void StartButtonOnClick();
