@@ -6,7 +6,7 @@
 class Button {
 public:
   Button(Rectangle area, Vector2 pos, Texture2D img, Texture2D hovered,
-         Texture2D held, const std::function<void()> onClick)
+         Texture2D held, const std::function<void()> &onClick)
       : m_Area(area), m_Position(pos), m_Image(img), m_Hovered(hovered),
         m_Held(held), m_OnClick(onClick) {}
 
