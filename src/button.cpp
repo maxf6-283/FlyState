@@ -1,46 +1,45 @@
 #include "button.h"
 
-#include "raylib.h"
-
 void Button::Update() {
-  Vector2 mouse_pos = GetMousePosition();
-  if (CheckCollisionPointRec(mouse_pos, area_)) {
-    if (holding_) {
+  Vector2 mousePos = GetMousePosition();
+  if (CheckCollisionPointRec(mousePos, m_Area)) {
+    if (m_Holding) {
       if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         // we have released
-        holding_ = false;
-        hovering_ = true;
-        on_click_();
+        m_Holding = false;
+        m_Hovering = true;
+        m_OnClick();
       }
-    } else if (hovering_) {
+    } else if (m_Hovering) {
       if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        holding_ = true;
-        hovering_ = false;
+        m_Holding = true;
+        m_Hovering = false;
       }
     } else {
       if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        hovering_ = true;
+        m_Hovering = true;
       }
     }
   } else {
-    hovering_ = false;
+    m_Hovering = false;
     if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-      holding_ = false;
+      m_Holding = false;
     }
   }
 }
 
 void Button::Draw() {
-  if (holding_) {
-    DrawTexture(held_, location_.x, location_.y, Color{255, 255, 255, 255});
-  } else if (hovering_) {
-    DrawTexture(hovered_, location_.x, location_.y, Color{255, 255, 255, 255});
+  if (m_Holding) {
+    DrawTexture(m_Held, m_Position.x, m_Position.y, Color{255, 255, 255, 255});
+  } else if (m_Hovering) {
+    DrawTexture(m_Hovered, m_Position.x, m_Position.y,
+                Color{255, 255, 255, 255});
   } else {
-    DrawTexture(img_, location_.x, location_.y, Color{255, 255, 255, 255});
+    DrawTexture(m_Image, m_Position.x, m_Position.y, Color{255, 255, 255, 255});
   }
 }
 
 void Button::Reset() {
-  holding_ = false;
-  hovering_ = false;
+  m_Holding = false;
+  m_Hovering = false;
 }
