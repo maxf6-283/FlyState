@@ -39,3 +39,8 @@ void Button::Draw() {
     DrawTexture(img_, location_.x, location_.y, Color{255, 255, 255, 255});
   }
 }
+
+void Button::Reset() {
+  holding_ = false;
+  hovering_ = false;
+}

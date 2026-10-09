@@ -2,8 +2,9 @@
 
 #include "button.h"
 #include "raylib.h"
+#include "screen_manager.h"
 
-void MainMenu::OnEnter() {}
+void MainMenu::OnEnter() { start_button_.Reset(); }
 
 void MainMenu::OnExit() {}
 
@@ -52,4 +53,5 @@ Button MainMenu::GetStartButton() {
 
 void MainMenu::StartButtonOnClick() {
   TraceLog(LOG_INFO, "Start button pressed!");
+  ScreenManager::Get().SwitchScenario(ScenarioType::LevelSelect);
 }

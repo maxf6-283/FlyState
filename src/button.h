@@ -17,6 +17,8 @@ class Button {
 
   void Draw();
 
+  void Reset();
+
  private:
   bool hovering_;
   bool holding_;

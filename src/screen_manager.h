@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 
+#include "level_select.h"
 #include "main_menu.h"
 #include "scenario.h"
 
@@ -33,9 +34,10 @@ class ScreenManager {
  private:
   ScreenManager() {}
 
-  Scenario& GetScenario(ScenarioType scen_type);
+  Scenario* GetScenario(ScenarioType scen_type);
 
-  Scenario& scenario_ = main_menu_;
+  Scenario* scenario_ = &main_menu_;
 
   MainMenu main_menu_{};
+  LevelSelect level_select_{};
 };
