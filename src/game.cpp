@@ -24,10 +24,13 @@ void UpdateAndDraw() {
     return;
 #endif
   }
-  ScreenManager::Get().Update();
+
+  ScreenManager &screenManager = ScreenManager::Get();
+
+  screenManager.Update();
 
   BeginDrawing();
-  ScreenManager::Get().Draw();
+  screenManager.Draw();
   EndDrawing();
 }
 } // namespace
