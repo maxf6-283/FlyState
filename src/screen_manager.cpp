@@ -1,28 +1,26 @@
 #include "screen_manager.h"
 
-#include <raylib.h>
-
 #include <stdexcept>
 
 #include "scenario.h"
 
-void ScreenManager::Draw() { scenario_->Draw(); }
+void ScreenManager::Draw() { m_Scenario->Draw(); }
 
-void ScreenManager::Update() { scenario_->Update(); }
+void ScreenManager::Update() { m_Scenario->Update(); }
 
-void ScreenManager::SwitchScenario(ScenarioType scen_type) {
-  scenario_->OnExit();
-  scenario_ = GetScenario(scen_type);
-  scenario_->OnEnter();
+void ScreenManager::SwitchScenario(ScenarioType sceneType) {
+  m_Scenario->OnExit();
+  m_Scenario = GetScenario(sceneType);
+  m_Scenario->OnEnter();
 }
 
-Scenario* ScreenManager::GetScenario(ScenarioType scen_type) {
-  switch (scen_type) {
-    case ScenarioType::MainMenu:
-      return &main_menu_;
-    case ScenarioType::LevelSelect:
-      return &level_select_;
-    default:
-      throw std::invalid_argument("Invalid scenario type!");
+Scenario *ScreenManager::GetScenario(ScenarioType sceneType) {
+  switch (sceneType) {
+  case ScenarioType::MainMenu:
+    return &m_MainMenu;
+  case ScenarioType::LevelSelect:
+    return &m_LevelSelect;
+  default:
+    throw std::invalid_argument("Invalid scenario type!");
   }
 }

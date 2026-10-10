@@ -1,7 +1,5 @@
 #pragma once
 
-#include <raylib.h>
-
 #include "level_select.h"
 #include "main_menu.h"
 #include "scenario.h"
@@ -15,29 +13,29 @@ enum class ScenarioType {
 };
 
 class ScreenManager {
- public:
-  ScreenManager(const ScreenManager&) = delete;
-  ScreenManager& operator=(const ScreenManager&) = delete;
-  ScreenManager(ScreenManager&&) = delete;
-  ScreenManager& operator=(ScreenManager&&) = delete;
+public:
+  ScreenManager(const ScreenManager &) = delete;
+  ScreenManager &operator=(const ScreenManager &) = delete;
+  ScreenManager(ScreenManager &&) = delete;
+  ScreenManager &operator=(ScreenManager &&) = delete;
 
   void Update();
   void Draw();
 
-  void SwitchScenario(ScenarioType scen_type);
+  void SwitchScenario(ScenarioType sceneType);
 
-  static ScreenManager& Get() {
+  static ScreenManager &Get() {
     static ScreenManager instance{};
     return instance;
   }
 
- private:
+private:
   ScreenManager() {}
 
-  Scenario* GetScenario(ScenarioType scen_type);
+  Scenario *GetScenario(ScenarioType sceneType);
 
-  Scenario* scenario_ = &main_menu_;
+  Scenario *m_Scenario = &m_MainMenu;
 
-  MainMenu main_menu_{};
-  LevelSelect level_select_{};
+  MainMenu m_MainMenu{};
+  LevelSelect m_LevelSelect{};
 };

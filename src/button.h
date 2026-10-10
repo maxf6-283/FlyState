@@ -1,17 +1,14 @@
 #pragma once
 
+#include <functional>
 #include <raylib.h>
 
 class Button {
- public:
-  Button(Rectangle area, Vector2 loc, Texture2D img, Texture2D hovered,
-         Texture2D held, void (*on_click)())
-      : area_(area),
-        location_(loc),
-        img_(img),
-        hovered_(hovered),
-        held_(held),
-        on_click_(on_click) {}
+public:
+  Button(Rectangle area, Vector2 pos, Texture2D img, Texture2D hovered,
+         Texture2D held, const std::function<void()> &onClick)
+      : m_Area(area), m_Position(pos), m_Image(img), m_Hovered(hovered),
+        m_Held(held), m_OnClick(onClick) {}
 
   void Update();
 
@@ -19,16 +16,16 @@ class Button {
 
   void Reset();
 
- private:
-  bool hovering_;
-  bool holding_;
+private:
+  bool m_Hovering;
+  bool m_Holding;
 
-  const Rectangle area_;
-  const Vector2 location_;
+  Rectangle m_Area;
+  Vector2 m_Position;
 
-  const Texture2D img_;
-  const Texture2D hovered_;
-  const Texture2D held_;
+  Texture2D m_Image;
+  Texture2D m_Hovered;
+  Texture2D m_Held;
 
-  void (*const on_click_)();
+  std::function<void()> m_OnClick;
 };
