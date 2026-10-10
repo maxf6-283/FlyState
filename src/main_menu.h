@@ -7,13 +7,13 @@ class MainMenu : public Scenario {
 public:
   MainMenu() : m_StartButton(GetStartButton()) {}
 
-  virtual void OnEnter();
-  virtual void OnExit();
+  virtual void OnEnter() override;
+  virtual void OnExit() override;
 
-  virtual void Draw();
-  virtual void Update();
+  virtual void Draw() const override;
+  virtual void Update() override;
 
-private:
+ private:
   Button m_StartButton;
 
   static Button GetStartButton();

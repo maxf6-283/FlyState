@@ -28,14 +28,13 @@ void Button::Update() {
   }
 }
 
-void Button::Draw() {
+void Button::Draw() const {
   if (m_Holding) {
-    DrawTexture(m_Held, m_Position.x, m_Position.y, Color{255, 255, 255, 255});
+    DrawTexture(m_Held, m_Position.x, m_Position.y, m_HeldTint);
   } else if (m_Hovering) {
-    DrawTexture(m_Hovered, m_Position.x, m_Position.y,
-                Color{255, 255, 255, 255});
+    DrawTexture(m_Hovered, m_Position.x, m_Position.y, m_HoveredTint);
   } else {
-    DrawTexture(m_Image, m_Position.x, m_Position.y, Color{255, 255, 255, 255});
+    DrawTexture(m_Image, m_Position.x, m_Position.y, m_ImageTint);
   }
 }
 
