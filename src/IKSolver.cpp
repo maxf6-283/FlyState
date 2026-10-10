@@ -25,7 +25,7 @@ IKSolver::Output IKSolver::solve(const Input &input, Vector2 target) {
   float midToEffect = Vector2Length(input.effect - input.mid);
 
   float rootToTarget = Clamp(Vector2Length(target - input.root),
-                             abs(rootToMid - midToEffect) + input.epsilon,
+                             fabs(rootToMid - midToEffect) + input.epsilon,
                              rootToMid + midToEffect - input.epsilon);
 
   float cosAlpha = (rootToMid * rootToMid + rootToTarget * rootToTarget -
