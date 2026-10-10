@@ -57,6 +57,7 @@ add_executable(flystate
     "${CMAKE_SOURCE_DIR}/src/main_menu.cpp"
     "${CMAKE_SOURCE_DIR}/src/button.cpp"
     "${CMAKE_SOURCE_DIR}/src/level_select.cpp"
+    "${CMAKE_SOURCE_DIR}/src/level.cpp"
 )
 target_link_libraries(flystate PRIVATE raylib)
 target_compile_features(flystate PRIVATE cxx_std_20)

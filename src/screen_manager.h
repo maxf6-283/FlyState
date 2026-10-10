@@ -1,16 +1,11 @@
 #pragma once
 
+#include <vector>
+
+#include "level.h"
 #include "level_select.h"
 #include "main_menu.h"
 #include "scenario.h"
-
-enum class ScenarioType {
-  MainMenu,
-  LevelSelect,
-  LevelCubicle,
-  LevelConference,
-  LevelBoss,
-};
 
 class ScreenManager {
 public:
@@ -20,9 +15,11 @@ public:
   ScreenManager &operator=(ScreenManager &&) = delete;
 
   void Update();
-  void Draw();
+  void Draw() const;
 
   void SwitchScenario(ScenarioType sceneType);
+
+  const std::vector<Level> &levels() const { return m_Levels; }
 
   static ScreenManager &Get() {
     static ScreenManager instance{};
@@ -30,12 +27,14 @@ public:
   }
 
 private:
-  ScreenManager() {}
+ ScreenManager();
 
-  Scenario *GetScenario(ScenarioType sceneType);
+ Scenario *GetScenario(ScenarioType sceneType);
 
-  Scenario *m_Scenario = &m_MainMenu;
+ Scenario *m_Scenario = &m_MainMenu;
 
-  MainMenu m_MainMenu{};
-  LevelSelect m_LevelSelect{};
+ MainMenu m_MainMenu{};
+ LevelSelect m_LevelSelect{};
+
+ std::vector<Level> m_Levels;
 };
