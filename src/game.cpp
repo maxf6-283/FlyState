@@ -1,6 +1,7 @@
 #include <raylib.h>
 
 #include "screen_manager.h"
+#include "fly.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -15,6 +16,8 @@ namespace {
 constexpr int SCREEN_WIDTH = 960;
 constexpr int SCREEN_HEIGHT = 540;
 
+FlyBall gameBall(SCREEN_WIDTH, SCREEN_HEIGHT);
+
 void UpdateAndDraw() {
   if (WindowShouldClose()) {
 #if RAYLIB_JAM_WEB
@@ -25,12 +28,17 @@ void UpdateAndDraw() {
 #endif
   }
 
+  gameBall.Update();
+
   ScreenManager &screenManager = ScreenManager::Get();
 
   screenManager.Update();
 
   BeginDrawing();
   screenManager.Draw();
+
+  gameBall.Draw();
+
   EndDrawing();
 }
 } // namespace
@@ -40,6 +48,8 @@ int main() {
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Fly State");
   SetTargetFPS(60);
+
+
 
 #if RAYLIB_JAM_WEB
   // Emscripten calls this function from the browser event loop.
