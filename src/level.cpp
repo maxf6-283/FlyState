@@ -13,4 +13,4 @@ void Level::Draw() const {
   DrawTexture(m_Background, 0, 0, WHITE);
 }
 
-void Level::Update() {}
+void Level::Update(const Fly& fly) {}

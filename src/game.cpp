@@ -24,13 +24,13 @@ void UpdateAndDraw() {
     return;
 #endif
   }
-
   ScreenManager &screenManager = ScreenManager::Get();
 
   screenManager.Update();
 
   BeginDrawing();
   screenManager.Draw();
+
   EndDrawing();
 }
 } // namespace
@@ -40,6 +40,8 @@ int main() {
 
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Fly State");
   SetTargetFPS(60);
+
+
 
 #if RAYLIB_JAM_WEB
   // Emscripten calls this function from the browser event loop.

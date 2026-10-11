@@ -11,3 +11,6 @@
 
 # clangd
 .cache/**
+
+# visual studio
+/.vs

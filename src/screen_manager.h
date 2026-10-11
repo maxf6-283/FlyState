@@ -1,10 +1,14 @@
 #pragma once
 
+#include <cstdlib>
+#include <random>
 #include <vector>
 
+#include "fly.h"
 #include "level.h"
 #include "level_select.h"
 #include "main_menu.h"
+#include "raylib.h"
 #include "scenario.h"
 
 class ScreenManager {
@@ -30,6 +34,9 @@ private:
  ScreenManager();
 
  Scenario *GetScenario(ScenarioType sceneType);
+
+ Fly m_Fly{Vector2{static_cast<float>(GetRandomValue(0, GetScreenWidth())),
+                   static_cast<float>(GetRandomValue(0, GetScreenHeight()))}};
 
  Scenario *m_Scenario = &m_MainMenu;
 

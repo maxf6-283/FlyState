@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fly.h"
+
 enum class ScenarioType {
   MainMenu,
   LevelSelect,
@@ -14,5 +16,5 @@ class Scenario {
   virtual void OnExit() = 0;
 
   virtual void Draw() const = 0;
-  virtual void Update() = 0;
+  virtual void Update(const Fly& fly) = 0;
 };
