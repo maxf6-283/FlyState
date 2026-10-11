@@ -30,6 +30,9 @@ Human testHuman(leftFoot, rightFoot, 0.0f);
 
 IKSolver arm;
 
+Vector2 bodyTarget;
+Vector2 bodyDestination;
+
 void UpdateAndDraw() {
   if (WindowShouldClose()) {
 #if RAYLIB_JAM_WEB
@@ -46,21 +49,17 @@ void UpdateAndDraw() {
   Vector2 humanPos = testHuman.GetPosition();
   humanPos.y = 300.0f;
 
+  if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+    bodyTarget = humanPos;
+    bodyDestination = GetMousePosition();
+  }
+
+  bodyTarget = Vector2Lerp(bodyTarget, bodyDestination, 0.01f);
+  testHuman.MoveTo(bodyTarget, 0.9f);
+
   bool forward = testHuman.GetForward();
 
-  if (IsKeyDown(KEY_D)) {
-    humanPos.x += 150.0f * GetFrameTime();
-    forward = true;
-  }
-
-  if (IsKeyDown(KEY_A)) {
-    humanPos.x -= 150.0f * GetFrameTime();
-    forward = false;
-  }
-
-  testHuman.SetForward(forward);
-
-  if (!IsKeyDown(KEY_D) && !IsKeyDown(KEY_A)) {
+  if (testHuman.BodyMoveDone()) {
     testHuman.StabilizeBody();
   } else {
     Vector2 rightFoot = testHuman.GetRightFoot();
@@ -68,18 +67,16 @@ void UpdateAndDraw() {
 
     float offset = forward ? 60.0f : -60.0f;
 
-    testHuman.rightArmTo(Vector2{leftFoot.x + offset, humanPos.y + 30.0f},
+    testHuman.RightArmTo(Vector2{leftFoot.x + offset, humanPos.y + 30.0f},
                          0.1f);
 
-    testHuman.leftArmTo(Vector2{rightFoot.x + offset, humanPos.y + 30.0f},
+    testHuman.LeftArmTo(Vector2{rightFoot.x + offset, humanPos.y + 30.0f},
                         0.1f);
-
-    testHuman.SetPosition(humanPos);
   }
 
   testHuman.Update();
 
-  initialX = humanPos.x;
+  initialX = testHuman.GetPosition().x;
 
   Human::LimbOutput leftLeg = testHuman.GetLeftLeg();
   Human::LimbOutput rightLeg = testHuman.GetRightLeg();
@@ -103,14 +100,41 @@ void UpdateAndDraw() {
     DrawCircleV(limb.effect, 10.0f, pointColor);
   };
 
-  drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, DARKGREEN);
-  drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, DARKGREEN);
+  auto drawBack = [&]() {
+    if (forward) {
+      drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, DARKGREEN);
+      drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, DARKGREEN);
+    } else {
+      drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
+      drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN);
+    }
+  };
+
+  auto drawFront = [&]() {
+    if (forward) {
+      drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
+      drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN);
+    } else {
+      drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, DARKGREEN);
+      drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, DARKGREEN);
+    }
+  };
+
+  DrawText("Punch test", 50.0f, 120.0f, 32, WHITE);
+  DrawCircleV({50.0f, 100.0f}, 20.0f, BLACK);
+  DrawCircleV({130.0f, 50.0f}, 20.0f, BLACK);
+  DrawCircleV({210.0f, 100.0f}, 20.0f, BLACK);
+
+  DrawText("Slap test", 800.0f, 250.0f, 32, WHITE);
+  DrawRectangleV({800.0f, 300.0f}, {100.0f, 30.0f}, BROWN);
+
+  drawBack();
+
   // lower and upper body
   DrawCircleV(lowerBody, 45.0f, YELLOW);
   DrawCircleV(upperBody - Vector2{0.0f, 90.0f}, 45.0f, YELLOW);
 
-  drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
-  drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN);
+  drawFront();
 
   EndDrawing();
 }
