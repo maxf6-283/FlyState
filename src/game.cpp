@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "Human.h"
 #include "IKSolver.h"
 
 #ifdef __EMSCRIPTEN__
@@ -16,64 +17,18 @@ namespace {
 constexpr int SCREEN_WIDTH = 960;
 constexpr int SCREEN_HEIGHT = 540;
 
-IKSolver leg{};
-IKSolver arm{};
-
 float initialX = GetScreenWidth() * 0.5f;
 
-struct Foot {
-  Vector2 foot{};
-  Vector2 footTarget{};
+Human::Foot rightFoot{Vector2{initialX, 500.0f}, Vector2{initialX, 500.0f},
+                      Vector2{initialX, 500.0f}};
 
-  Vector2 prevFoot{};
-  bool isStepping = false;
-  float strideLength = 80.0f;
-  float legLength = 200.0f;
-  float stepHeight = 50.0f;
+Human::Foot leftFoot{Vector2{initialX - 50.0f, 500.0f},
+                     Vector2{initialX - 50.0f, 500.0f},
+                     Vector2{initialX - 50.0f, 500.0f}};
 
-  float stepDuration = 0.5f;
-  float stepTimer = 0.0f;
-};
+Human testHuman(leftFoot, rightFoot, 0.0f);
 
-Foot rightFoot{Vector2{initialX, 500.0f}, Vector2{initialX, 500.0f},
-               Vector2{initialX, 500.0f}};
-
-Foot leftFoot{Vector2{initialX - 50.0f, 500.0f},
-              Vector2{initialX - 50.0f, 500.0f},
-              Vector2{initialX - 50.0f, 500.0f}};
-
-bool forward = true;
-
-void UpdateFoot(Vector2 &hip, Foot &foot, bool forward) {
-  if (fabs(foot.foot.x - hip.x) >= foot.strideLength && !foot.isStepping) {
-    if (forward) {
-      foot.footTarget.x = hip.x + foot.strideLength;
-    } else {
-      foot.footTarget.x = hip.x - foot.strideLength;
-    }
-
-    foot.prevFoot = foot.foot;
-    foot.isStepping = true;
-  }
-
-  if (foot.isStepping) {
-    foot.stepTimer += GetFrameTime();
-
-    float t = foot.stepTimer / foot.stepDuration;
-
-    foot.foot.x = (1.0f - t) * foot.prevFoot.x + t * foot.footTarget.x;
-    foot.foot.y = foot.footTarget.y - foot.stepHeight * sinf(PI * t);
-
-    if (foot.stepTimer >= foot.stepDuration) {
-      foot.isStepping = false;
-    }
-  }
-
-  if (!foot.isStepping) {
-    foot.foot = foot.footTarget;
-    foot.stepTimer = 0.0f;
-  }
-}
+IKSolver arm;
 
 void UpdateAndDraw() {
   if (WindowShouldClose()) {
@@ -88,74 +43,63 @@ void UpdateAndDraw() {
   BeginDrawing();
   ClearBackground(Color{190, 190, 190, 255});
 
-  initialX += (forward ? 150.0f : -150.0f) * GetFrameTime();
-  if (initialX > GetScreenWidth() || initialX < 0.0f) {
-    forward = !forward;
+  Vector2 humanPos = testHuman.GetPosition();
+  humanPos.y = 300.0f;
+
+  bool forward = testHuman.GetForward();
+
+  if (IsKeyDown(KEY_D)) {
+    humanPos.x += 150.0f * GetFrameTime();
+    forward = true;
   }
 
-  Vector2 hip = {initialX, 300};
-
-  if (!leftFoot.isStepping) {
-    UpdateFoot(hip, rightFoot, forward);
-  }
-  if (!rightFoot.isStepping) {
-    UpdateFoot(hip, leftFoot, forward);
+  if (IsKeyDown(KEY_A)) {
+    humanPos.x -= 150.0f * GetFrameTime();
+    forward = false;
   }
 
-  float horizontalOff = 0.0f;
+  testHuman.SetForward(forward);
 
-  float minimumFootDistance = 150.0f;
-  if (leftFoot.isStepping) {
-    horizontalOff = hip.x - rightFoot.foot.x;
-
-    float maxHorizontalOffset =
-        sqrtf(fmax(0.0f, rightFoot.legLength * rightFoot.legLength -
-                             minimumFootDistance * minimumFootDistance));
-
-    horizontalOff =
-        Clamp(horizontalOff, -maxHorizontalOffset, maxHorizontalOffset);
-
-    hip.y = rightFoot.foot.y - sqrtf(rightFoot.legLength * rightFoot.legLength -
-                                     horizontalOff * horizontalOff);
+  if (!IsKeyDown(KEY_D) && !IsKeyDown(KEY_A)) {
+    testHuman.StabilizeBody();
   } else {
-    horizontalOff = hip.x - leftFoot.foot.x;
+    Vector2 rightFoot = testHuman.GetRightFoot();
+    Vector2 leftFoot = testHuman.GetLeftFoot();
 
-    float maxHorizontalOffset =
-        sqrtf(fmax(0.0f, leftFoot.legLength * leftFoot.legLength -
-                             minimumFootDistance * minimumFootDistance));
+    float offset = forward ? 60.0f : -60.0f;
 
-    horizontalOff =
-        Clamp(horizontalOff, -maxHorizontalOffset, maxHorizontalOffset);
+    testHuman.rightArmTo(Vector2{leftFoot.x + offset, humanPos.y + 30.0f},
+                         0.1f);
 
-    hip.y = leftFoot.foot.y - sqrtf(leftFoot.legLength * leftFoot.legLength -
-                                    horizontalOff * horizontalOff);
+    testHuman.leftArmTo(Vector2{rightFoot.x + offset, humanPos.y + 30.0f},
+                        0.1f);
+
+    testHuman.SetPosition(humanPos);
   }
+
+  // testHuman.leftArmTo(
+  //     Vector2{cosf(GetTime() * 10.0f) * 100.0f, sinf(GetTime()) * 50.0f},
+  //     0.1f);
+
+  testHuman.Update();
+
+  initialX = humanPos.x;
+
+  Human::LimbOutput leftLeg = testHuman.GetLeftLeg();
+  Human::LimbOutput rightLeg = testHuman.GetRightLeg();
+
+  Human::LimbOutput leftArm = testHuman.GetLeftArm();
+  Human::LimbOutput rightArm = testHuman.GetRightArm();
+
+  Vector2 lowerBody = {initialX, leftLeg.root.y};
+  Vector2 upperBody = {initialX, leftLeg.root.y};
 
   Vector2 armPole = {initialX - ((forward) ? 100.0f : -100.0f), 100};
   Vector2 legPole = {initialX + ((forward) ? 100.0f : -100.0f), 100};
 
-  float radius = 100.0f;
-
-  IKSolver::Input input{hip, hip + Vector2{0.0f, 100.0f},
-                        hip + Vector2{0.0f, 200.0f}, legPole};
-
-  Vector2 body = {initialX, hip.y - 20.0f};
-
-  Vector2 shoulder = {initialX, body.y - 100.0f};
+  Vector2 shoulder = {upperBody.x, upperBody.y - 100.0f};
   Vector2 elbow = {initialX, shoulder.y + 90.0f};
   Vector2 hand = {initialX, elbow.y + 90.0f};
-
-  float armRadius = Lerp(20.0f, 50.0f, Clamp(cos(GetTime()), 0.0f, 1.0f));
-  Vector2 armTarget =
-      shoulder + Vector2(cos(GetTime() * 2.5f) * armRadius * 5.5f,
-                         sin(GetTime()) * armRadius * 2.2f);
-  armTarget.y += 115.0f;
-
-  IKSolver::Input armInput{shoulder, elbow, hand, armPole};
-
-  IKSolver::Output legOutput = leg.solve(input, rightFoot.foot);
-  IKSolver::Output leftLegOutput = leg.solve(input, leftFoot.foot);
-  IKSolver::Output armOutput = arm.solve(armInput, armTarget);
 
   auto drawLimb = [](Vector2 root, IKSolver::Output limb, Color pointColor) {
     DrawLineV(root, limb.mid, BLUE);
@@ -166,17 +110,17 @@ void UpdateAndDraw() {
     DrawCircleV(limb.effect, 10.0f, pointColor);
   };
 
-  drawLimb(hip, leftLegOutput, DARKGREEN);
+  drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, DARKGREEN);
+  drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, DARKGREEN);
   // lower and upper body
-  DrawCircleV(body, 45.0f, YELLOW);
-  DrawCircleV(body - Vector2{0.0f, 90.0f}, 45.0f, YELLOW);
-  drawLimb(hip, legOutput, GREEN);
-  drawLimb(shoulder, armOutput, GREEN);
+  DrawCircleV(lowerBody, 45.0f, YELLOW);
+  DrawCircleV(upperBody - Vector2{0.0f, 90.0f}, 45.0f, YELLOW);
 
-  DrawCircleV(armTarget, 10.0f, RED);
+  drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
+  drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN);
+
   DrawCircleV(legPole, 10.0f, PURPLE);
   DrawCircleV(armPole, 10.0f, BROWN);
-  DrawCircleV(rightFoot.footTarget, 10.0f, RED);
 
   EndDrawing();
 }
