@@ -1,7 +1,10 @@
 #pragma once
 
-#include <functional>
 #include <raylib.h>
+
+#include <functional>
+
+#include "fly.h"
 
 class Button {
 public:
@@ -19,7 +22,7 @@ public:
        m_HeldTint(held_tint),
        m_OnClick(onClick) {}
 
- void Update();
+ void Update(const Fly& fly);
 
  void Draw() const;
 

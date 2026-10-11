@@ -6,9 +6,15 @@
 #include "raylib.h"
 #include "scenario.h"
 
-void ScreenManager::Draw() const { m_Scenario->Draw(); }
+void ScreenManager::Draw() const {
+  m_Scenario->Draw();
+  m_Fly.Draw();
+}
 
-void ScreenManager::Update() { m_Scenario->Update(); }
+void ScreenManager::Update() {
+  m_Fly.Update();
+  m_Scenario->Update(m_Fly);
+}
 
 void ScreenManager::SwitchScenario(ScenarioType sceneType) {
   m_Scenario->OnExit();

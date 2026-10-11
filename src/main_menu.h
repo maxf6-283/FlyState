@@ -11,7 +11,7 @@ public:
   virtual void OnExit() override;
 
   virtual void Draw() const override;
-  virtual void Update() override;
+  virtual void Update(const Fly& fly) override;
 
  private:
   Button m_StartButton;

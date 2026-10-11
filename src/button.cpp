@@ -1,28 +1,28 @@
 #include "button.h"
 
-void Button::Update() {
-  Vector2 mousePos = GetMousePosition();
-  if (CheckCollisionPointRec(mousePos, m_Area)) {
+void Button::Update(const Fly& fly) {
+  const Vector2 flyPos = fly.position();
+  if (CheckCollisionPointRec(flyPos, m_Area)) {
     if (m_Holding) {
-      if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+      if (!IsKeyDown(KEY_SPACE)) {
         // we have released
         m_Holding = false;
         m_Hovering = true;
         m_OnClick();
       }
     } else if (m_Hovering) {
-      if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+      if (IsKeyDown(KEY_SPACE)) {
         m_Holding = true;
         m_Hovering = false;
       }
     } else {
-      if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+      if (!IsKeyDown(KEY_SPACE)) {
         m_Hovering = true;
       }
     }
   } else {
     m_Hovering = false;
-    if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+    if (!IsKeyDown(KEY_SPACE)) {
       m_Holding = false;
     }
   }

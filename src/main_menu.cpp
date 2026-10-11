@@ -17,7 +17,7 @@ void MainMenu::Draw() const {
   m_StartButton.Draw();
 }
 
-void MainMenu::Update() { m_StartButton.Update(); }
+void MainMenu::Update(const Fly& fly) { m_StartButton.Update(fly); }
 
 Button MainMenu::GetStartButton() {
   RenderTexture2D img = LoadRenderTexture(200, 100);

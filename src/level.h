@@ -19,7 +19,7 @@ class Level : public Scenario {
   void OnExit() override;
 
   void Draw() const override;
-  void Update() override;
+  void Update(const Fly& fly) override;
 
   const Image& thumbnail() const { return m_Thumbnail; };
   const std::string& name() const { return m_Name; };

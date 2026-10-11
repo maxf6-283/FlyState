@@ -65,8 +65,8 @@ void LevelSelect::Draw() const {
   }
 }
 
-void LevelSelect::Update() {
+void LevelSelect::Update(const Fly& fly) {
   for (LevelButton& level_button : m_LevelButtons) {
-    level_button.button.Update();
+    level_button.button.Update(fly);
   }
 }

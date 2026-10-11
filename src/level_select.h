@@ -14,7 +14,7 @@ public:
   void OnExit() override;
 
   void Draw() const override;
-  void Update() override;
+  void Update(const Fly& fly) override;
 
  private:
   struct LevelButton {
