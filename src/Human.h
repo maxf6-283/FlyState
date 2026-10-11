@@ -23,6 +23,7 @@ public:
 
   struct Hand {
     Vector2 hand{};
+    Vector2 prevHand{};
     Vector2 handTarget{};
 
     float duration;
@@ -40,10 +41,14 @@ public:
 
   void Update();
 
-  void leftArmTo(Vector2 target, float duration);
-  void rightArmTo(Vector2 target, float duration);
-  bool leftArmDone() const;
-  bool rightArmDone() const;
+  void MoveTo(Vector2 target, float duration);
+
+  void LeftArmTo(Vector2 target, float duration);
+  void RightArmTo(Vector2 target, float duration);
+
+  bool LeftArmDone() const;
+  bool RightArmDone() const;
+  bool BodyMoveDone() const;
 
   LimbOutput GetRightLeg() const;
   LimbOutput GetLeftLeg() const;
@@ -66,7 +71,12 @@ public:
   void StabilizeBody();
 
 private:
+  Vector2 m_PrevPosition = Vector2Zero();
   Vector2 m_Position = Vector2Zero();
+  Vector2 m_BodyTarget = Vector2Zero();
+
+  float m_MoveTimer = 0.0f;
+  float m_MoveDuration = 0.0f;
 
   float m_HipOffset = 30.0f;
 

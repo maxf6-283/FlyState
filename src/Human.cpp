@@ -45,6 +45,21 @@ void UpdateFoot(Vector2 &hip, Human::Foot &foot, bool forward) {
 }
 
 void Human::Update() {
+  if (m_MoveDuration != 0.0f) {
+    m_MoveTimer += GetFrameTime();
+
+    m_MoveTimer = Clamp(m_MoveTimer, 0.0f, m_MoveDuration);
+
+    float t = m_MoveTimer / m_MoveDuration;
+    m_Position = Vector2Lerp(m_PrevPosition, m_BodyTarget, t);
+
+    if (m_MoveTimer >= m_MoveDuration) {
+      m_MoveTimer = 0.0f;
+      m_MoveDuration = 0.0f;
+      m_Position = m_BodyTarget;
+    }
+  }
+
   Vector2 hip = {m_Position.x, m_Position.y};
 
   if (!m_LeftFoot.isStepping) {
@@ -121,7 +136,7 @@ void Human::Update() {
 
       float t = hand.timer / hand.duration;
 
-      hand.hand = Vector2Lerp(hand.hand, hand.handTarget, t);
+      hand.hand = Vector2Lerp(hand.prevHand, hand.handTarget, t);
     }
 
     if (hand.timer >= hand.duration) {
@@ -166,24 +181,42 @@ void Human::SetPosition(Vector2 position) { m_Position = position; }
 Vector2 Human::GetRightFoot() const { return m_RightFoot.foot; }
 Vector2 Human::GetLeftFoot() const { return m_LeftFoot.foot; }
 
-void Human::leftArmTo(Vector2 target, float duration) {
+void Human::LeftArmTo(Vector2 target, float duration) {
+  m_LeftHand.prevHand = m_LeftHand.hand;
   m_LeftHand.handTarget = target;
   m_LeftHand.duration = duration;
   m_LeftHand.timer = 0.0f;
 }
 
-void Human::rightArmTo(Vector2 target, float duration) {
+void Human::RightArmTo(Vector2 target, float duration) {
+  m_RightHand.prevHand = m_RightHand.hand;
   m_RightHand.handTarget = target;
   m_RightHand.duration = duration;
   m_RightHand.timer = 0.0f;
 }
 
-bool Human::leftArmDone() const {
+bool Human::LeftArmDone() const {
   return m_LeftHand.timer == m_LeftHand.duration;
 }
 
-bool Human::rightArmDone() const {
+bool Human::RightArmDone() const {
   return m_RightHand.timer == m_RightHand.duration;
+}
+
+void Human::MoveTo(Vector2 target, float duration) {
+  if (target.x == m_Position.x)
+    return;
+
+  if (target.x > m_Position.x) {
+    SetForward(true);
+  } else if (target.x < m_Position.x) {
+    SetForward(false);
+  }
+
+  m_MoveDuration = duration;
+  m_MoveTimer = 0.0f;
+  m_BodyTarget = target;
+  m_PrevPosition = m_Position;
 }
 
 Human::LimbOutput Human::GetRightArm() const { return m_RightArm; }
@@ -193,17 +226,24 @@ Vector2 Human::GetRightHand() const { return m_RightHand.hand; }
 Vector2 Human::GetLeftHand() const { return m_LeftHand.hand; }
 
 void Human::StabilizeBody() {
+  float offset = m_Forward ? 20.0f : -20.0f;
+  float hipDistance = -30.0f;
+  float hipY = m_Position.y + m_HipOffset;
+  RightArmTo(Vector2{m_Position.x + offset, hipY - hipDistance}, 0.1f);
+  LeftArmTo(Vector2{m_Position.x + offset, hipY - hipDistance + 10.0f}, 0.1f);
+
+  // Don't stabilize hips if movement is still in progress
+  // because you can get launched back depending on where your
+  // feet are
+  if (!BodyMoveDone())
+    return;
+
   Vector2 rightFoot = GetRightFoot();
   Vector2 leftFoot = GetLeftFoot();
 
   float balance = (rightFoot.x + leftFoot.x) * 0.5f;
   float t = 1.0f - exp(-8.0f * GetFrameTime());
   m_Position.x = Lerp(m_Position.x, balance, t);
-
-  float offset = m_Forward ? 20.0f : -20.0f;
-  float hipDistance = -30.0f;
-  float hipY = m_Position.y + m_HipOffset;
-
-  rightArmTo(Vector2{m_Position.x + offset, hipY - hipDistance}, 0.1f);
-  leftArmTo(Vector2{m_Position.x + offset, hipY - hipDistance + 10.0f}, 0.1f);
 }
+
+bool Human::BodyMoveDone() const { return m_MoveTimer == m_MoveDuration; }
