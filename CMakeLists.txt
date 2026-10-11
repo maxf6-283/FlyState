@@ -55,6 +55,7 @@ add_executable(
     flystate 
     "${CMAKE_SOURCE_DIR}/src/game.cpp" 
     "${CMAKE_SOURCE_DIR}/src/IKSolver.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Human.cpp"
 )
 
 target_link_libraries(flystate PRIVATE raylib)
