@@ -42,7 +42,6 @@ void UpdateFoot(Vector2 &hip, Human::Foot &foot, bool forward) {
 }
 
 void Human::Update() {
-
   Vector2 hip = {m_Position.x, m_Position.y};
 
   if (!m_LeftFoot.isStepping) {
@@ -90,33 +89,19 @@ void Human::Update() {
 
   Vector2 legPole = {m_Position.x + ((m_Forward) ? 100.0f : -100.0f),
                      m_Position.y};
-
-  float radius = 100.0f;
+  Vector2 armPole = {m_Position.x - ((m_Forward) ? 100.0f : -100.0f),
+                     m_Position.y};
 
   Vector2 hipToKnee = hip + Vector2{0.0f, m_LegSegmentLength};
   Vector2 kneeToFoot = hipToKnee + Vector2{0.0f, m_LegSegmentLength};
 
-  IKSolver::Input input{hip, hipToKnee, kneeToFoot, legPole};
-
-  // Vector2 body = {initialX, hip.y - 20.0f};
-  //
-  // Vector2 shoulder = {initialX, body.y - 100.0f};
-  // Vector2 elbow = {initialX, shoulder.y + 90.0f};
-  // Vector2 hand = {initialX, elbow.y + 90.0f};
-
-  // float armRadius = Lerp(20.0f, 50.0f, Clamp(cos(GetTime()), 0.0f, 1.0f));
-  // Vector2 armTarget =
-  //     shoulder + Vector2(cos(GetTime() * 2.5f) * armRadius * 5.5f,
-  //                        sin(GetTime()) * armRadius * 2.2f);
-  // armTarget.y += 115.0f;
-  //
-  // IKSolver::Input armInput{shoulder, elbow, hand, armPole};
+  IKSolver::Input legInput{hip, hipToKnee, kneeToFoot, legPole};
 
   IKSolver::Output leftLegOutput =
-      m_LeftLegSolver.solve(input, m_LeftFoot.foot);
+      m_LeftLegSolver.solve(legInput, m_LeftFoot.foot);
 
   IKSolver::Output rightLegOutput =
-      m_RightLegSolver.solve(input, m_RightFoot.foot);
+      m_RightLegSolver.solve(legInput, m_RightFoot.foot);
 
   m_LeftLeg.root = hip;
   m_LeftLeg.mid = leftLegOutput.mid;
@@ -125,6 +110,45 @@ void Human::Update() {
   m_RightLeg.root = hip;
   m_RightLeg.mid = rightLegOutput.mid;
   m_RightLeg.effect = rightLegOutput.effect;
+
+  auto animateHand = [](Hand &hand) {
+    if (hand.duration > 0.0f) {
+      hand.timer += GetFrameTime();
+      hand.timer = Clamp(hand.timer, 0.0f, hand.duration);
+
+      float t = hand.timer / hand.duration;
+
+      hand.hand = Vector2Lerp(hand.hand, hand.handTarget, t);
+    }
+
+    if (hand.timer >= hand.duration) {
+      hand.timer = 0.0f;
+      hand.duration = 0.0f;
+    }
+  };
+
+  Vector2 shoulder = {hip.x, hip.y - m_BodySegmentLength};
+  Vector2 elbow = shoulder + Vector2{0, m_ArmSegmentLength};
+  Vector2 hand = elbow + Vector2{0, m_ArmSegmentLength};
+
+  animateHand(m_RightHand);
+  animateHand(m_LeftHand);
+
+  IKSolver::Input armInput{shoulder, elbow, hand, armPole};
+
+  IKSolver::Output leftArmOutput =
+      m_LeftArmSolver.solve(armInput, m_LeftHand.hand);
+
+  IKSolver::Output rightArmOutput =
+      m_RightArmSolver.solve(armInput, m_RightHand.hand);
+
+  m_RightArm.root = shoulder;
+  m_RightArm.mid = rightArmOutput.mid;
+  m_RightArm.effect = rightArmOutput.effect;
+
+  m_LeftArm.root = shoulder;
+  m_LeftArm.mid = leftArmOutput.mid;
+  m_LeftArm.effect = leftArmOutput.effect;
 }
 
 bool Human::GetForward() const { return m_Forward; }
@@ -135,3 +159,48 @@ Human::LimbOutput Human::GetLeftLeg() const { return m_LeftLeg; }
 
 Vector2 Human::GetPosition() const { return m_Position; }
 void Human::SetPosition(Vector2 position) { m_Position = position; }
+
+Vector2 Human::GetRightFoot() const { return m_RightFoot.foot; }
+Vector2 Human::GetLeftFoot() const { return m_LeftFoot.foot; }
+
+void Human::leftArmTo(Vector2 target, float duration) {
+  m_LeftHand.handTarget = target;
+  m_LeftHand.duration = duration;
+  m_LeftHand.timer = 0.0f;
+}
+
+void Human::rightArmTo(Vector2 target, float duration) {
+  m_RightHand.handTarget = target;
+  m_RightHand.duration = duration;
+  m_RightHand.timer = 0.0f;
+}
+
+bool Human::leftArmDone() const {
+  return m_LeftHand.timer == m_LeftHand.duration;
+}
+
+bool Human::rightArmDone() const {
+  return m_RightHand.timer == m_RightHand.duration;
+}
+
+Human::LimbOutput Human::GetRightArm() const { return m_RightArm; }
+Human::LimbOutput Human::GetLeftArm() const { return m_LeftArm; }
+
+Vector2 Human::GetRightHand() const { return m_RightHand.hand; }
+Vector2 Human::GetLeftHand() const { return m_LeftHand.hand; }
+
+void Human::StabilizeBody() {
+  Vector2 rightFoot = GetRightFoot();
+  Vector2 leftFoot = GetLeftFoot();
+
+  float balance = (rightFoot.x + leftFoot.x) * 0.5f;
+  float t = 1.0f - exp(-8.0f * GetFrameTime());
+  m_Position.x = Lerp(m_Position.x, balance, t);
+
+  float offset = m_Forward ? 20.0f : -20.0f;
+  float hipDistance = -30.0f;
+  float hipY = m_Position.y + m_HipOffset;
+
+  rightArmTo(Vector2{m_Position.x + offset, hipY - hipDistance}, 0.1f);
+  leftArmTo(Vector2{m_Position.x + offset, hipY - hipDistance + 10.0f}, 0.1f);
+}
