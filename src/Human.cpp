@@ -8,6 +8,9 @@ Human::Human(const Foot &leftFoot, const Foot &rightFoot, float hipOffset,
   m_RightFoot = rightFoot;
   m_HipOffset = hipOffset;
   m_LegSegmentLength = legLength;
+
+  m_LeftHand.handTarget = m_Position;
+  m_RightHand.handTarget = m_Position;
 }
 
 void UpdateFoot(Vector2 &hip, Human::Foot &foot, bool forward) {
