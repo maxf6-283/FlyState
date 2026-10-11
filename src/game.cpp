@@ -77,10 +77,6 @@ void UpdateAndDraw() {
     testHuman.SetPosition(humanPos);
   }
 
-  // testHuman.leftArmTo(
-  //     Vector2{cosf(GetTime() * 10.0f) * 100.0f, sinf(GetTime()) * 50.0f},
-  //     0.1f);
-
   testHuman.Update();
 
   initialX = humanPos.x;
@@ -93,9 +89,6 @@ void UpdateAndDraw() {
 
   Vector2 lowerBody = {initialX, leftLeg.root.y};
   Vector2 upperBody = {initialX, leftLeg.root.y};
-
-  Vector2 armPole = {initialX - ((forward) ? 100.0f : -100.0f), 100};
-  Vector2 legPole = {initialX + ((forward) ? 100.0f : -100.0f), 100};
 
   Vector2 shoulder = {upperBody.x, upperBody.y - 100.0f};
   Vector2 elbow = {initialX, shoulder.y + 90.0f};
@@ -118,9 +111,6 @@ void UpdateAndDraw() {
 
   drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
   drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN);
-
-  DrawCircleV(legPole, 10.0f, PURPLE);
-  DrawCircleV(armPole, 10.0f, BROWN);
 
   EndDrawing();
 }
