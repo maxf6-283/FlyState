@@ -74,6 +74,12 @@ if(USE_JOLT)
 endif()
 
 if(EMSCRIPTEN)
+    file(GLOB_RECURSE GAME_ASSETS CONFIGURE_DEPENDS
+        "${CMAKE_SOURCE_DIR}/assets/*"
+    )
+    set_property(TARGET flystate APPEND PROPERTY LINK_DEPENDS
+        "${GAME_ASSETS}"
+    )
     set_target_properties(flystate PROPERTIES SUFFIX ".html")
     set_property(TARGET flystate APPEND PROPERTY LINK_DEPENDS
         "${CMAKE_SOURCE_DIR}/web/shell.html"
