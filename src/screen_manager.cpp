@@ -48,9 +48,11 @@ ScreenManager::ScreenManager() {
 
   Image thumbnail_img = LoadImageFromTexture(thumbnail.texture);
   Image thumbnail2_img = LoadImageFromTexture(thumbnail2.texture);
+  Image thumbnail3_img = LoadImage("assets/verity.png");
 
   RenderTexture2D bg = LoadRenderTexture(500, 500);
   RenderTexture2D bg2 = LoadRenderTexture(500, 500);
+  RenderTexture2D bg3 = LoadRenderTexture(500, 500);
 
   // clang-format off
   BeginTextureMode(bg);
@@ -59,10 +61,15 @@ ScreenManager::ScreenManager() {
   BeginTextureMode(bg2);
     ClearBackground(LIME);
   EndTextureMode();
+  BeginTextureMode(bg3);
+    ClearBackground(YELLOW);
+  EndTextureMode();
   // clang-format on
 
   m_Levels.push_back(Level("Dummy Level", ScenarioType::LevelConference,
                            thumbnail_img, bg.texture));
   m_Levels.push_back(Level("Dummy Level 2", ScenarioType::LevelCubicle,
                            thumbnail2_img, bg2.texture));
+  m_Levels.push_back(Level("Dummy Level 3", ScenarioType::LevelBoss,
+                           thumbnail3_img, bg3.texture));
 }

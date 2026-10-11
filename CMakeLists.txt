@@ -84,6 +84,7 @@ if(EMSCRIPTEN)
         "-sASYNCIFY"
         "-sALLOW_MEMORY_GROWTH=1"
         "--shell-file=${CMAKE_SOURCE_DIR}/web/shell.html"
+        "--preload-file=${CMAKE_SOURCE_DIR}/assets@/assets"
     )
 else()
     if(WIN32)

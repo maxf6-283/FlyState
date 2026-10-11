@@ -9,10 +9,10 @@ if ! command -v python3 >/dev/null 2>&1; then
     exit 1
 fi
 
-if [[ ! -f build/web/raylib_jam.html ]]; then
-    printf 'build/web/raylib_jam.html was not found. Run ./scripts/build-web.sh first.\n' >&2
+if [[ ! -f build/web/flystate.html ]]; then
+    printf 'build/web/flystate.html was not found. Run ./scripts/build-web.sh first.\n' >&2
     exit 1
 fi
 
-printf 'Serving http://localhost:8000/raylib_jam.html\n'
+printf 'Serving http://localhost:8000/flystate.html\n'
 python3 -m http.server 8000 --directory build/web
