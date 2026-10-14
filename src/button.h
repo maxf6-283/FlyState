@@ -9,7 +9,7 @@
 class Button {
 public:
  Button(Rectangle area, Vector2 pos, Texture2D img, Texture2D hovered,
-        Texture2D held, const std::function<void()> &onClick,
+        Texture2D held, const std::function<void()>& onClick,
         Color image_tint = WHITE, Color hovered_tint = WHITE,
         Color held_tint = WHITE)
      : m_Area(area),

@@ -3,6 +3,7 @@
 #include <raylib.h>
 
 #include "button.h"
+#include "fly.h"
 #include "screen_manager.h"
 
 static const int level_horizontal_sep = 50;
@@ -12,7 +13,7 @@ static const int level_text_sep = 20;
 static const int start_x = 50;
 static const int start_y = 150;
 
-void LevelSelect::OnEnter() {
+void LevelSelect::OnEnter(Fly& fly) {
   TraceLog(LOG_INFO, "Entered level select");
 
   m_LevelButtons.clear();
@@ -47,9 +48,9 @@ void LevelSelect::OnEnter() {
   }
 }
 
-void LevelSelect::OnExit() {}
+void LevelSelect::OnExit(Fly& fly) {}
 
-void LevelSelect::Draw() const {
+void LevelSelect::Draw(const Fly& fly) const {
   ClearBackground(Color{190, 190, 190, 255});
   DrawText("Level Select", 32, 32, 40, DARKGRAY);
 
@@ -63,9 +64,13 @@ void LevelSelect::Draw() const {
     DrawText(level_button.name.c_str(), pos_x, pos_y, level_font_size,
              DARKGRAY);
   }
+
+  fly.Draw();
 }
 
-void LevelSelect::Update(const Fly& fly) {
+void LevelSelect::Update(Fly& fly) {
+  fly.Update();
+
   for (LevelButton& level_button : m_LevelButtons) {
     level_button.button.Update(fly);
   }

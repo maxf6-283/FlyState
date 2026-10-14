@@ -12,9 +12,9 @@ enum class ScenarioType {
 
 class Scenario {
  public:
-  virtual void OnEnter() = 0;
-  virtual void OnExit() = 0;
+  virtual void OnEnter(Fly& fly) = 0;
+  virtual void OnExit(Fly& fly) = 0;
 
-  virtual void Draw() const = 0;
-  virtual void Update(const Fly& fly) = 0;
+  virtual void Draw(const Fly& fly) const = 0;
+  virtual void Update(Fly& fly) = 0;
 };

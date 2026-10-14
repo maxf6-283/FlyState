@@ -15,11 +15,11 @@ class Level : public Scenario {
         m_ScenarioType(scenario_type),
         m_Background(background) {}
 
-  void OnEnter() override;
-  void OnExit() override;
+  void OnEnter(Fly& fly) override;
+  void OnExit(Fly& fly) override;
 
-  void Draw() const override;
-  void Update(const Fly& fly) override;
+  void Draw(const Fly& fly) const override;
+  void Update(Fly& fly) override;
 
   const Image& thumbnail() const { return m_Thumbnail; };
   const std::string& name() const { return m_Name; };
@@ -31,6 +31,8 @@ class Level : public Scenario {
   ScenarioType m_ScenarioType;
 
   Texture2D m_Background;
+
+  Camera2D m_Camera;
 
   // TODO: fly
   // TODO: list of obstacles, slappables, etc.

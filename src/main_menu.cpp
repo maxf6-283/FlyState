@@ -3,21 +3,26 @@
 #include <raylib.h>
 
 #include "button.h"
+#include "fly.h"
 #include "screen_manager.h"
 
-void MainMenu::OnEnter() { m_StartButton.Reset(); }
+void MainMenu::OnEnter(Fly& fly) { m_StartButton.Reset(); }
 
-void MainMenu::OnExit() {}
+void MainMenu::OnExit(Fly& fly) {}
 
-void MainMenu::Draw() const {
+void MainMenu::Draw(const Fly& fly) const {
   ClearBackground(Color{190, 190, 190, 255});
   DrawText("FlyState Game Jam", 32, 32, 28, DARKGRAY);
   DrawText("Start working on the game!", 32, 72, 20, GRAY);
 
   m_StartButton.Draw();
+  fly.Draw();
 }
 
-void MainMenu::Update(const Fly& fly) { m_StartButton.Update(fly); }
+void MainMenu::Update(Fly& fly) {
+  fly.Update();
+  m_StartButton.Update(fly);
+}
 
 Button MainMenu::GetStartButton() {
   RenderTexture2D img = LoadRenderTexture(200, 100);

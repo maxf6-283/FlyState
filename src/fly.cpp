@@ -28,33 +28,29 @@ void Fly::Update() {
   m_velocity.x += inputDirection.x * ACCELERATION * dt;
   m_velocity.y += inputDirection.y * ACCELERATION * dt;
 
-  // 3. Apply friction/drag when no keys are pressed
+  // 3. Apply friction/drag
   float frictionDelta = FRICTION * dt;
 
-  if (inputDirection.x == 0.0f) {
-    if (std::fabs(m_velocity.x) <= frictionDelta) {
-      m_velocity.x = 0.0f;
-    } else {
-      m_velocity.x += (m_velocity.x > 0.0f) ? -frictionDelta : frictionDelta;
-    }
-  }
+  if (Vector2LengthSqr(m_velocity) > frictionDelta * frictionDelta) {
+    Vector2 normalized_vel = Vector2Normalize(m_velocity);
 
-  if (inputDirection.y == 0.0f) {
-    if (std::fabs(m_velocity.y) <= frictionDelta) {
-      m_velocity.y = 0.0f;
-    } else {
-      m_velocity.y += (m_velocity.y > 0.0f) ? -frictionDelta : frictionDelta;
-    }
+    m_velocity -= normalized_vel * frictionDelta;
+  } else {
+    m_velocity.x = 0;
+    m_velocity.y = 0;
   }
 
   // 4. 💡 Limit maximum speed (Speed Cap)
-  // Vector2Clamp caps the length of the vector between 0 and MAX_SPEED
-  m_velocity = Vector2Clamp(m_velocity, Vector2{-MAX_SPEED, -MAX_SPEED},
-                            Vector2{MAX_SPEED, MAX_SPEED});
+  if (Vector2LengthSqr(m_velocity) > MAX_SPEED * MAX_SPEED) {
+    m_velocity = Vector2Normalize(m_velocity) * MAX_SPEED;
+  }
 
   // 5. Update position using our calculated velocity
-  m_position.x += m_velocity.x;
-  m_position.y += m_velocity.y;
+  m_position += m_velocity;
 }
 
-void Fly::Draw() const { DrawCircleV(m_position, 20, MAROON); }
+void Fly::Draw() const { DrawCircleV(m_position, 15, MAROON); }
+
+void Fly::SetPos(Vector2 pos) { m_position = pos; }
+
+void Fly::SetVel(Vector2 vel) { m_velocity = vel; }

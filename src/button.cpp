@@ -1,8 +1,8 @@
 #include "button.h"
 
 void Button::Update(const Fly& fly) {
-  const Vector2 flyPos = fly.position();
-  if (CheckCollisionPointRec(flyPos, m_Area)) {
+  const Vector2 fly_pos = fly.position();
+  if (CheckCollisionPointRec(fly_pos, m_Area)) {
     if (m_Holding) {
       if (!IsKeyDown(KEY_SPACE)) {
         // we have released

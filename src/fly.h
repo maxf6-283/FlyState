@@ -10,6 +10,10 @@ class Fly {
   void Draw() const;
 
   Vector2 position() const { return m_position; };
+  Vector2 velocity() const { return m_velocity; };
+
+  void SetPos(Vector2 pos);
+  void SetVel(Vector2 vel);
 
  private:
   Vector2 m_position;

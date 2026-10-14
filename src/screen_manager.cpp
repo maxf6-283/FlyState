@@ -6,20 +6,14 @@
 #include "raylib.h"
 #include "scenario.h"
 
-void ScreenManager::Draw() const {
-  m_Scenario->Draw();
-  m_Fly.Draw();
-}
+void ScreenManager::Draw() const { m_Scenario->Draw(m_Fly); }
 
-void ScreenManager::Update() {
-  m_Fly.Update();
-  m_Scenario->Update(m_Fly);
-}
+void ScreenManager::Update() { m_Scenario->Update(m_Fly); }
 
 void ScreenManager::SwitchScenario(ScenarioType sceneType) {
-  m_Scenario->OnExit();
+  m_Scenario->OnExit(m_Fly);
   m_Scenario = GetScenario(sceneType);
-  m_Scenario->OnEnter();
+  m_Scenario->OnEnter(m_Fly);
 }
 
 Scenario *ScreenManager::GetScenario(ScenarioType sceneType) {
@@ -56,13 +50,15 @@ ScreenManager::ScreenManager() {
   Image thumbnail2_img = LoadImageFromTexture(thumbnail2.texture);
   Image thumbnail3_img = LoadImage("assets/verity.png");
 
-  RenderTexture2D bg = LoadRenderTexture(500, 500);
-  RenderTexture2D bg2 = LoadRenderTexture(500, 500);
-  RenderTexture2D bg3 = LoadRenderTexture(500, 500);
+  RenderTexture2D bg = LoadRenderTexture(2000, 1000);
+  RenderTexture2D bg2 = LoadRenderTexture(3000, 1000);
+  RenderTexture2D bg3 = LoadRenderTexture(1000, 1000);
 
   // clang-format off
   BeginTextureMode(bg);
     ClearBackground(ORANGE);
+    DrawRectangle(0, 0, 1000, 500, YELLOW);
+    DrawRectangle(0, 500, 1000, 500, PINK);
   EndTextureMode();
   BeginTextureMode(bg2);
     ClearBackground(LIME);

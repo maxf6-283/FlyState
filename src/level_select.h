@@ -10,11 +10,11 @@ class LevelSelect : public Scenario {
 public:
   LevelSelect() = default;
 
-  void OnEnter() override;
-  void OnExit() override;
+  void OnEnter(Fly& fly) override;
+  void OnExit(Fly& fly) override;
 
-  void Draw() const override;
-  void Update(const Fly& fly) override;
+  void Draw(const Fly& fly) const override;
+  void Update(Fly& fly) override;
 
  private:
   struct LevelButton {
