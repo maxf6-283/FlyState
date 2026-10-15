@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "level.h"
+#include "obstacle.h"
 #include "raylib.h"
 #include "scenario.h"
 
@@ -68,10 +69,18 @@ ScreenManager::ScreenManager() {
   EndTextureMode();
   // clang-format on
 
+  RenderTexture2D obs_img = LoadRenderTexture(300, 100);
+  BeginTextureMode(obs_img);
+  ClearBackground(RED);
+  EndTextureMode();
+
+  Obstacle test_obs =
+      Obstacle({300, 300, 300, 100}, {300, 300}, obs_img.texture);
+
   m_Levels.push_back(Level("Dummy Level", ScenarioType::LevelConference,
-                           thumbnail_img, bg.texture));
+                           thumbnail_img, bg.texture, {test_obs}));
   m_Levels.push_back(Level("Dummy Level 2", ScenarioType::LevelCubicle,
-                           thumbnail2_img, bg2.texture));
+                           thumbnail2_img, bg2.texture, {}));
   m_Levels.push_back(Level("Dummy Level 3", ScenarioType::LevelBoss,
-                           thumbnail3_img, bg3.texture));
+                           thumbnail3_img, bg3.texture, {}));
 }

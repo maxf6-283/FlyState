@@ -59,6 +59,7 @@ add_executable(flystate
     "${CMAKE_SOURCE_DIR}/src/level_select.cpp"
     "${CMAKE_SOURCE_DIR}/src/level.cpp"
     "${CMAKE_SOURCE_DIR}/src/fly.cpp"  
+    "${CMAKE_SOURCE_DIR}/src/obstacle.cpp"  
 )
 target_link_libraries(flystate PRIVATE raylib)
 target_compile_features(flystate PRIVATE cxx_std_20)

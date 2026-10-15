@@ -4,11 +4,12 @@
 
 #include <cmath>
 
+#include "obstacle.h"
 #include "raylib.h"
 
 Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {};
 
-void Fly::Update() {
+void Fly::Update(const std::vector<Obstacle>& obstacles) {
   float dt =
       GetFrameTime();  // Time passed since last frame (around 0.016s at 60FPS)
 
@@ -47,9 +48,15 @@ void Fly::Update() {
 
   // 5. Update position using our calculated velocity
   m_position += m_velocity;
+
+  // 6. Move out of the obstacle and cancel velocity in that direction
+  for (const Obstacle obstacle : obstacles) {
+  }
 }
 
 void Fly::Draw() const { DrawCircleV(m_position, 15, MAROON); }
+
+void Fly::Offset(Vector2 pos) { m_position += pos; }
 
 void Fly::SetPos(Vector2 pos) { m_position = pos; }
 

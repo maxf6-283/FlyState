@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 
+#include "obstacle.h"
 #include "raymath.h"
 
 void Level::OnEnter(Fly& fly) {
@@ -28,6 +29,11 @@ void Level::Draw(const Fly& fly) const {
   BeginMode2D(m_Camera);
 
   DrawTexture(m_Background, 0, 0, WHITE);
+
+  for (const Obstacle& obstacle : m_Obstacles) {
+    obstacle.Draw();
+  }
+
   fly.Draw();
 
   EndMode2D();
@@ -39,7 +45,7 @@ void Level::Update(Fly& fly) {
       m_Camera.target,
       fly.position() -
           Vector2{GetScreenWidth() * 1.0f, GetScreenHeight() * 1.0f} / 2,
-      0.2f);
+      0.1f);
 
   // clamp camera position to only show bg
   if (m_Camera.target.x < 0) {
@@ -57,4 +63,8 @@ void Level::Update(Fly& fly) {
   }
 
   fly.Update();
+
+  for (const Obstacle& obstacle : m_Obstacles) {
+    fly.Offset(obstacle.CollisionOffset(fly.position(), fly.radius()));
+  }
 }

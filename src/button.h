@@ -28,9 +28,9 @@ public:
 
  void Reset();
 
- const Vector2 position() const { return m_Position; }
+ Vector2 position() const { return m_Position; }
 
- const Rectangle area() const { return m_Area; }
+ Rectangle area() const { return m_Area; }
 
 private:
  bool m_Hovering;
