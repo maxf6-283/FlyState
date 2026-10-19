@@ -81,8 +81,17 @@ void UpdateAndDraw() {
   if (IsKeyPressed(KEY_C)) {
     testHuman.LeftSlap(GetMousePosition(), 0.5, 0.1f);
   }
+
   if (IsKeyPressed(KEY_Z)) {
     testHuman.RightSlap(GetMousePosition(), 0.5, 0.1f);
+  }
+
+  if (IsKeyPressed(KEY_Q)) {
+    testHuman.LeftPunch(GetMousePosition(), 0.2, 0.2f);
+  }
+
+  if (IsKeyPressed(KEY_E)) {
+    testHuman.RightPunch(GetMousePosition(), 0.2, 0.2f);
   }
 
   testHuman.Update();

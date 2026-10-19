@@ -69,6 +69,9 @@ public:
   void LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime);
   void RightSlap(Vector2 slapTarget, float windupTime, float releaseTime);
 
+  void LeftPunch(Vector2 punchTarget, float windupTime, float releaseTime);
+  void RightPunch(Vector2 punchTarget, float windupTime, float releaseTime);
+
   bool LeftArmDone() const;
   bool RightArmDone() const;
   bool BodyMoveDone() const;

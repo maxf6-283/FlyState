@@ -145,7 +145,8 @@ void Human::Update() {
     }
   };
 
-  auto executeArmAction = [this](ArmAction &armAction, bool left) {
+  auto executeArmAction = [this](ArmAction &armAction, bool left,
+                                 Vector2 shoulder) {
     bool armDone = left ? LeftArmDone() : RightArmDone();
     if (armAction.state == ArmState::Slap) {
       if (armDone || armAction.windupState == ArmAction::WindupState::Begin) {
@@ -175,15 +176,45 @@ void Human::Update() {
           break;
         }
       }
+    } else if (armAction.state == ArmState::Punch) {
+      if (armDone || armAction.windupState == ArmAction::WindupState::Begin) {
+        switch (armAction.windupState) {
+        case ArmAction::WindupState::Begin:
+          armAction.windupState = ArmAction::WindupState::Windup;
+        case ArmAction::WindupState::Windup: {
+          Vector2 windupTarget =
+              shoulder +
+              (GetForward() ? Vector2{10.0, 0.0} : Vector2{-10.0, 0.0});
+          if (left) {
+            LeftArmTo(windupTarget, armAction.windupTime);
+          } else {
+            RightArmTo(windupTarget, armAction.windupTime);
+          }
+          armAction.windupState = ArmAction::WindupState::Release;
+          break;
+        }
+        case ArmAction::WindupState::Release:
+          if (left) {
+            LeftArmTo(armAction.target, armAction.releaseTime);
+          } else {
+            RightArmTo(armAction.target, armAction.releaseTime);
+          }
+          armAction.windupState = ArmAction::WindupState::Done;
+          break;
+        case ArmAction::WindupState::Done:
+          armAction.state = ArmState::Any;
+          break;
+        }
+      }
     }
   };
-
-  executeArmAction(m_LeftArmAction, true);
-  executeArmAction(m_RightArmAction, false);
 
   Vector2 shoulder = {hip.x, hip.y - m_BodySegmentLength};
   Vector2 elbow = shoulder + Vector2{0, m_ArmSegmentLength};
   Vector2 hand = elbow + Vector2{0, m_ArmSegmentLength};
+
+  executeArmAction(m_LeftArmAction, true, shoulder);
+  executeArmAction(m_RightArmAction, false, shoulder);
 
   animateHand(m_RightHand);
   animateHand(m_LeftHand);
@@ -277,6 +308,32 @@ void Human::RightSlap(Vector2 slapTarget, float windupTime, float releaseTime) {
 
   m_RightArmAction.state = ArmState::Slap;
   m_RightArmAction.target = slapTarget;
+}
+
+void Human::LeftPunch(Vector2 punchTarget, float windupTime,
+                      float releaseTime) {
+  if (m_LeftArmAction.state != ArmState::Any)
+    return;
+
+  m_LeftArmAction.windupTime = windupTime;
+  m_LeftArmAction.releaseTime = releaseTime;
+  m_LeftArmAction.windupState = ArmAction::WindupState::Begin;
+
+  m_LeftArmAction.state = ArmState::Punch;
+  m_LeftArmAction.target = punchTarget;
+}
+
+void Human::RightPunch(Vector2 punchTarget, float windupTime,
+                       float releaseTime) {
+  if (m_RightArmAction.state != ArmState::Any)
+    return;
+
+  m_RightArmAction.windupTime = windupTime;
+  m_RightArmAction.releaseTime = releaseTime;
+  m_RightArmAction.windupState = ArmAction::WindupState::Begin;
+
+  m_RightArmAction.state = ArmState::Punch;
+  m_RightArmAction.target = punchTarget;
 }
 
 Human::LimbOutput Human::GetRightArm() const { return m_RightArm; }
