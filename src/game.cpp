@@ -67,11 +67,22 @@ void UpdateAndDraw() {
 
     float offset = forward ? 60.0f : -60.0f;
 
-    testHuman.RightArmTo(Vector2{leftFoot.x + offset, humanPos.y + 30.0f},
-                         0.1f);
+    if (testHuman.RightArmState() == Human::ArmState::Any) {
+      testHuman.RightArmTo(Vector2{leftFoot.x + offset, humanPos.y + 30.0f},
+                           0.1f);
+    }
 
-    testHuman.LeftArmTo(Vector2{rightFoot.x + offset, humanPos.y + 30.0f},
-                        0.1f);
+    if (testHuman.LeftArmState() == Human::ArmState::Any) {
+      testHuman.LeftArmTo(Vector2{rightFoot.x + offset, humanPos.y + 30.0f},
+                          0.1f);
+    }
+  }
+
+  if (IsKeyPressed(KEY_C)) {
+    testHuman.LeftSlap(GetMousePosition(), 0.5, 0.1f);
+  }
+  if (IsKeyPressed(KEY_Z)) {
+    testHuman.RightSlap(GetMousePosition(), 0.5, 0.1f);
   }
 
   testHuman.Update();

@@ -7,6 +7,26 @@
 
 class Human {
 public:
+  enum class ArmState {
+    Slap,
+    Punch,
+
+    // Not punching or slapping so allow any arm motion
+    Any
+  };
+
+  struct ArmAction {
+    enum class WindupState { Begin, Windup, Release, Done };
+
+    ArmState state = ArmState::Any;
+    Vector2 target = Vector2Zero();
+
+    float windupTime = 0.0f;
+    float releaseTime = 0.0f;
+
+    WindupState windupState = WindupState::Done;
+  };
+
   struct Foot {
     Vector2 foot{};
     Vector2 footTarget{};
@@ -46,9 +66,15 @@ public:
   void LeftArmTo(Vector2 target, float duration);
   void RightArmTo(Vector2 target, float duration);
 
+  void LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime);
+  void RightSlap(Vector2 slapTarget, float windupTime, float releaseTime);
+
   bool LeftArmDone() const;
   bool RightArmDone() const;
   bool BodyMoveDone() const;
+
+  ArmState LeftArmState() const;
+  ArmState RightArmState() const;
 
   LimbOutput GetRightLeg() const;
   LimbOutput GetLeftLeg() const;
@@ -74,6 +100,9 @@ private:
   Vector2 m_PrevPosition = Vector2Zero();
   Vector2 m_Position = Vector2Zero();
   Vector2 m_BodyTarget = Vector2Zero();
+
+  ArmAction m_LeftArmAction;
+  ArmAction m_RightArmAction;
 
   float m_MoveTimer = 0.0f;
   float m_MoveDuration = 0.0f;
@@ -109,6 +138,7 @@ private:
 
   LimbOutput m_RightLeg{};
   LimbOutput m_LeftLeg{};
+
   LimbOutput m_RightArm{};
   LimbOutput m_LeftArm{};
 };
