@@ -9,16 +9,20 @@
 
 Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {};
 
-void Fly::Update(const std::vector<Obstacle>& obstacles) {
+void Fly::Update(const std::vector<Obstacle> &obstacles) {
   float dt =
-      GetFrameTime();  // Time passed since last frame (around 0.016s at 60FPS)
+      GetFrameTime(); // Time passed since last frame (around 0.016s at 60FPS)
 
   // 1. Calculate target direction based on inputs
   Vector2 inputDirection = {0.0f, 0.0f};
-  if (IsKeyDown(KEY_D)) inputDirection.x += 1.0f;
-  if (IsKeyDown(KEY_A)) inputDirection.x -= 1.0f;
-  if (IsKeyDown(KEY_S)) inputDirection.y += 1.0f;
-  if (IsKeyDown(KEY_W)) inputDirection.y -= 1.0f;
+  if (IsKeyDown(KEY_D))
+    inputDirection.x += 1.0f;
+  if (IsKeyDown(KEY_A))
+    inputDirection.x -= 1.0f;
+  if (IsKeyDown(KEY_S))
+    inputDirection.y += 1.0f;
+  if (IsKeyDown(KEY_W))
+    inputDirection.y -= 1.0f;
 
   // Normalize input to prevent moving faster diagonally
   if (inputDirection.x != 0.0f && inputDirection.y != 0.0f) {
@@ -48,10 +52,6 @@ void Fly::Update(const std::vector<Obstacle>& obstacles) {
 
   // 5. Update position using our calculated velocity
   m_position += m_velocity;
-
-  // 6. Move out of the obstacle and cancel velocity in that direction
-  for (const Obstacle obstacle : obstacles) {
-  }
 }
 
 void Fly::Draw() const { DrawCircleV(m_position, 15, MAROON); }
