@@ -20,5 +20,5 @@ Vector2 Obstacle::CollisionOffset(Vector2 pos, float rad) const {
 }
 
 void Obstacle::Draw() const {
-  DrawTexture(m_Image, m_Position.x, m_Position.y, WHITE);
+  DrawTextureRec(m_Image, m_Area, m_Position, WHITE);
 }

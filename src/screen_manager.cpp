@@ -24,7 +24,7 @@ Scenario *ScreenManager::GetScenario(ScenarioType sceneType) {
   case ScenarioType::LevelSelect:
     return &m_LevelSelect;
   default:
-    for (Level& level : m_Levels) {
+    for (Level &level : m_Levels) {
       if (level.scenario_type() == sceneType) {
         return &level;
       }
@@ -74,11 +74,11 @@ ScreenManager::ScreenManager() {
   ClearBackground(RED);
   EndTextureMode();
 
-  Obstacle test_obs =
-      Obstacle({300, 300, 300, 100}, {300, 300}, obs_img.texture);
+  Obstacle test_obs = Obstacle({300, 400, 300, 100}, obs_img.texture);
+  Obstacle test_obs2 = Obstacle(Rectangle{450, 300, 100, 100}, bg3.texture);
 
   m_Levels.push_back(Level("Dummy Level", ScenarioType::LevelConference,
-                           thumbnail_img, bg.texture, {test_obs}));
+                           thumbnail_img, bg.texture, {test_obs, test_obs2}));
   m_Levels.push_back(Level("Dummy Level 2", ScenarioType::LevelCubicle,
                            thumbnail2_img, bg2.texture, {}));
   m_Levels.push_back(Level("Dummy Level 3", ScenarioType::LevelBoss,

@@ -7,9 +7,16 @@
 #include "obstacle.h"
 #include "raylib.h"
 
-Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {};
+Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {
+  m_Buzz = LoadSound("assets/buzzsfx.wav");
+};
 
 void Fly::Update(const std::vector<Obstacle> &obstacles) {
+
+  if (IsKeyPressed(KEY_SPACE) && !IsSoundPlaying(m_Buzz)) {
+    PlaySound(m_Buzz);
+  }
+
   float dt =
       GetFrameTime(); // Time passed since last frame (around 0.016s at 60FPS)
 
@@ -53,6 +60,8 @@ void Fly::Update(const std::vector<Obstacle> &obstacles) {
   // 5. Update position using our calculated velocity
   m_position += m_velocity;
 }
+
+bool Fly::IsBuzzing() const { return IsSoundPlaying(m_Buzz); }
 
 void Fly::Draw() const { DrawCircleV(m_position, 15, MAROON); }
 

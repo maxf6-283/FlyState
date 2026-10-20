@@ -5,7 +5,7 @@
 #include "obstacle.h"
 #include "raymath.h"
 
-void Level::OnEnter(Fly& fly) {
+void Level::OnEnter(Fly &fly) {
   TraceLog(LOG_INFO, "Entered level %s", m_Name.c_str());
   // TODO: define level-specific starting positions for the fly
   const Vector2 fly_start_pos =
@@ -13,6 +13,8 @@ void Level::OnEnter(Fly& fly) {
   const Vector2 fly_screen_pos = fly.position();
 
   fly.SetPos(fly_start_pos);
+
+  m_Humans.emplace_back(Vector2{680.0f, 400.0f});
 
   // calculate camera pos so that the fly starts at the same point on screen.
   m_Camera.target.x = fly_start_pos.x - fly_screen_pos.x;
@@ -23,23 +25,35 @@ void Level::OnEnter(Fly& fly) {
   m_Camera.offset = {0.0, 0.0};
 }
 
-void Level::OnExit(Fly& fly) {}
+void Level::OnExit(Fly &fly) {}
 
-void Level::Draw(const Fly& fly) const {
+void Level::Draw(const Fly &fly) const {
   BeginMode2D(m_Camera);
 
   DrawTexture(m_Background, 0, 0, WHITE);
 
-  for (const Obstacle& obstacle : m_Obstacles) {
+  for (const Obstacle &obstacle : m_Obstacles) {
     obstacle.Draw();
   }
 
   fly.Draw();
+  for (const HumanController &controller : m_Humans) {
+    controller.Draw();
+  }
 
   EndMode2D();
+
+  float width = GetScreenWidth();
+  float height = GetScreenHeight();
+
+  if (!fly.IsBuzzing()) {
+    DrawCircle(0.9 * width, 0.1 * height, 20.0f, DARKGREEN);
+  } else {
+    DrawCircle(0.9 * width, 0.1 * height, 20.0f, ColorBrightness(RED, 0.1f));
+  }
 }
 
-void Level::Update(Fly& fly) {
+void Level::Update(Fly &fly) {
   // lerp camera target to fly pos
   m_Camera.target = Vector2Lerp(
       m_Camera.target,
@@ -64,7 +78,27 @@ void Level::Update(Fly& fly) {
 
   fly.Update();
 
-  for (const Obstacle& obstacle : m_Obstacles) {
+  for (const Obstacle &obstacle : m_Obstacles) {
     fly.Offset(obstacle.CollisionOffset(fly.position(), fly.radius()));
+  }
+
+  if (fly.IsBuzzing()) {
+    int min = -1;
+    float currentMinDist = std::numeric_limits<float>::max();
+    for (int i = 0; i < m_Humans.size(); ++i) {
+      float dist2 =
+          Vector2DistanceSqr(m_Humans.at(i).GetPosition(), fly.position());
+      if (dist2 < 20000 && dist2 < currentMinDist) {
+        min = i;
+        currentMinDist = dist2;
+      }
+    }
+    if (min > -1) {
+      m_Humans.at(min).Buzzed();
+    }
+  }
+
+  for (HumanController &controller : m_Humans) {
+    controller.Update(fly);
   }
 }

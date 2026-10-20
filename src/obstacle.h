@@ -3,9 +3,9 @@
 #include <raylib.h>
 
 class Obstacle {
- public:
-  Obstacle(Rectangle area, Vector2 pos, Texture2D img)
-      : m_Area(area), m_Position(pos), m_Image(img) {}
+public:
+  Obstacle(Rectangle area, Texture2D img)
+      : m_Area(area), m_Position({area.x, area.y}), m_Image(img) {}
 
   Vector2 CollisionOffset(Vector2 pos, float rad) const;
 
@@ -17,7 +17,7 @@ class Obstacle {
 
   Rectangle area() const { return m_Area; }
 
- private:
+private:
   bool m_Hovering;
   bool m_Holding;
 
