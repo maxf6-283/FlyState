@@ -59,6 +59,9 @@ public:
   Human(const Foot &leftFoot, const Foot &rightFoot, float hipOffset = 30.0f,
         float legLength = 100.0f);
 
+  void SetLeftFoot(const Foot &leftFoot);
+  void SetRightFoot(const Foot &rightFoot);
+
   void Update();
 
   void MoveTo(Vector2 target, float duration);

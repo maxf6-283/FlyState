@@ -13,6 +13,10 @@ Human::Human(const Foot &leftFoot, const Foot &rightFoot, float hipOffset,
   m_RightHand.handTarget = m_Position;
 }
 
+void Human::SetLeftFoot(const Foot &leftFoot) { m_LeftFoot = leftFoot; }
+
+void Human::SetRightFoot(const Foot &rightFoot) { m_RightFoot = rightFoot; }
+
 void UpdateFoot(Vector2 &hip, Human::Foot &foot, bool forward) {
   if (fabs(foot.foot.x - hip.x) >= foot.strideLength && !foot.isStepping) {
     if (forward) {
@@ -347,7 +351,7 @@ void Human::StabilizeBody() {
   float hipDistance = -30.0f;
   float hipY = m_Position.y + m_HipOffset;
   RightArmTo(Vector2{m_Position.x + offset, hipY - hipDistance}, 0.1f);
-  LeftArmTo(Vector2{m_Position.x + offset, hipY - hipDistance + 10.0f}, 0.1f);
+  LeftArmTo(Vector2{m_Position.x - offset, hipY - hipDistance + 10.0f}, 0.1f);
 
   // Don't stabilize hips if movement is still in progress
   // because you can get launched back depending on where your
