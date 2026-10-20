@@ -60,9 +60,26 @@ add_executable(flystate
     "${CMAKE_SOURCE_DIR}/src/level.cpp"
     "${CMAKE_SOURCE_DIR}/src/fly.cpp"  
     "${CMAKE_SOURCE_DIR}/src/obstacle.cpp"  
+    "${CMAKE_SOURCE_DIR}/src/IKSolver.cpp"  
+    "${CMAKE_SOURCE_DIR}/src/Human.cpp"  
+    "${CMAKE_SOURCE_DIR}/src/HumanController.cpp"  
 )
 target_link_libraries(flystate PRIVATE raylib)
 target_compile_features(flystate PRIVATE cxx_std_20)
+
+# Keep runtime assets beside the desktop executable. Replacing the directory
+# before every build also removes files deleted from the source assets folder.
+if(NOT CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
+    add_custom_target(flystate_assets ALL
+        COMMAND "${CMAKE_COMMAND}" -E remove_directory "${CMAKE_BINARY_DIR}/assets"
+        COMMAND "${CMAKE_COMMAND}" -E copy_directory
+            "${CMAKE_SOURCE_DIR}/assets"
+            "${CMAKE_BINARY_DIR}/assets"
+        COMMENT "Syncing game assets"
+        VERBATIM
+    )
+    add_dependencies(flystate flystate_assets)
+endif()
 
 if(USE_JOLT)
     if(TARGET Jolt)
