@@ -33,6 +33,7 @@ public:
 
   void SlappedFly(Fly *fly);
   void SetKeyboardAsset(Sound keyboard) { m_Keyboard = keyboard; }
+  void SetClosest(bool closest);
   void SetParryAsset(Sound parry) { m_Parry = parry; }
   void SetParriedCallback(const std::function<void()> &callback) {
     m_ParriedCallback = callback;
@@ -69,6 +70,8 @@ private:
   int m_ChaseThreshold = 4;
 
   bool m_DeathDone = false;
+  bool m_IsClosest = false;
+  static constexpr float m_KeyboardVolumeFalloff = 500.0f;
 
   Sound m_Keyboard;
   Sound m_Parry;

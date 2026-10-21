@@ -146,8 +146,18 @@ bool Fly::CanParry() const { return !m_Parrying && m_CanParry; }
 bool Fly::IsParrying() const { return m_Parrying; }
 
 void Fly::Reset() {
+  StopSound(m_Buzz);
   m_Dead = false;
   m_Money = 0;
   m_HumansDestroyedCounter = 0;
+  m_position = {GetScreenWidth() * 0.5f, GetScreenHeight() * 0.5f};
+  m_velocity = Vector2Zero();
+  m_CanDash = true;
+  m_Dashing = false;
+  m_DashTimer = 0.0f;
+  m_DashDirection = Vector2Zero();
+  m_CanParry = true;
+  m_Parrying = false;
+  m_ParryTimer = 0.0f;
   currentMaxSpeed = MAX_SPEED;
 }

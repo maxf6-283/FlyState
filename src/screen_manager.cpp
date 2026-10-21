@@ -23,6 +23,8 @@ Scenario *ScreenManager::GetScenario(ScenarioType sceneType) {
     return &m_MainMenu;
   case ScenarioType::DeathScreen:
     return &m_DeathScreen;
+  case ScenarioType::EndScreen:
+    return &m_EndScreen;
   case ScenarioType::LevelSelect:
     return &m_LevelSelect;
   default:

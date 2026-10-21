@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "DeathScreen.h"
+#include "EndScreen.h"
 #include "AssetMap.h"
 #include "fly.h"
 #include "level.h"
@@ -46,6 +47,7 @@ private:
 
   MainMenu m_MainMenu{};
   DeathScreen m_DeathScreen{};
+  EndScreen m_EndScreen{};
   LevelSelect m_LevelSelect{};
 
   std::vector<Level> m_Levels;

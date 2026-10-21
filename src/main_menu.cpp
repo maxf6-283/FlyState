@@ -56,6 +56,5 @@ Button MainMenu::GetStartButton() {
 }
 
 void MainMenu::StartButtonOnClick() {
-  TraceLog(LOG_INFO, "Start button pressed!");
   ScreenManager::Get().SwitchScenario(ScenarioType::LevelSelect);
 }

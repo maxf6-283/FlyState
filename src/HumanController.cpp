@@ -1,11 +1,21 @@
 #include "HumanController.h"
 
+#include <algorithm>
+#include <cmath>
+
 HumanController::HumanController() : m_Model({}, {}) {}
 
 void HumanController::Buzzed() {
   m_BuzzCount += 1;
   if (m_BuzzCount == m_AnnoyedThreshold) {
     m_State = State::AnnoyedWork;
+  }
+}
+
+void HumanController::SetClosest(bool closest) {
+  m_IsClosest = closest;
+  if (!m_IsClosest) {
+    StopSound(m_Keyboard);
   }
 }
 
@@ -59,7 +69,6 @@ HumanController::FlyHitCallback(Fly &fly, std::vector<Obstacle> &obstacles) {
         Rectangle obstacleBounds = obstacle.area();
         if (CheckCollisionCircleRec(handPos, 40.0f, obstacleBounds)) {
           obstacle.IncrementHitCounter();
-          TraceLog(LOG_INFO, "Object hit!");
           if (obstacle.IsDestroyed()) {
             flyPtr->AddMoney(obstacle.value());
             if (m_ObjectDestroyedCallback) {
@@ -111,7 +120,15 @@ void HumanController::Chase(Fly &fly, std::vector<Obstacle> &obstacle) {
 }
 
 void HumanController::Work(Fly &fly, std::vector<Obstacle> &obstacle) {
-  if (!IsSoundPlaying(m_Keyboard)) {
+  if (!m_IsClosest) {
+    StopSound(m_Keyboard);
+  } else {
+    const float distance = Vector2Distance(GetPosition(), fly.position());
+    const float volume =
+        std::min(1.0f, std::exp(-distance / m_KeyboardVolumeFalloff));
+    SetSoundVolume(m_Keyboard, volume);
+  }
+  if (m_IsClosest && !IsSoundPlaying(m_Keyboard)) {
     PlaySound(m_Keyboard);
   }
   bool forward = m_Model.GetForward();

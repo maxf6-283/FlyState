@@ -63,6 +63,9 @@ void Level::OnEnter(Fly &fly) {
 }
 
 void Level::OnExit(Fly &fly) {
+  for (HumanController &human : m_Humans) {
+    human.SetClosest(false);
+  }
   m_Humans.clear();
   m_ValueAnimator.Reset();
   for (Obstacle &obstacle : m_Obstacles) {
@@ -125,11 +128,10 @@ void Level::Update(Fly &fly) {
   if (m_ScreenShakeTimer == 0.0f) {
     m_ScreenShakeOffset = Vector2Zero();
   } else {
-    m_ScreenShakeOffset = {
-        static_cast<float>(GetRandomValue(-100, 100)) / 100.0f *
-            m_ScreenShakeMagnitude,
-        static_cast<float>(GetRandomValue(-100, 100)) / 100.0f *
-            m_ScreenShakeMagnitude};
+    m_ScreenShakeOffset = {static_cast<float>(GetRandomValue(-100, 100)) /
+                               100.0f * m_ScreenShakeMagnitude,
+                           static_cast<float>(GetRandomValue(-100, 100)) /
+                               100.0f * m_ScreenShakeMagnitude};
   }
 
   // lerp camera target to fly pos
@@ -180,6 +182,21 @@ void Level::Update(Fly &fly) {
     }
   }
 
+  int closestHuman = -1;
+  float closestDistance = std::numeric_limits<float>::max();
+  for (int i = 0; i < m_Humans.size(); ++i) {
+    const float distance =
+        Vector2DistanceSqr(m_Humans.at(i).GetPosition(), fly.position());
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestHuman = i;
+    }
+  }
+
+  for (int i = 0; i < m_Humans.size(); ++i) {
+    m_Humans.at(i).SetClosest(i == closestHuman);
+  }
+
   for (HumanController &controller : m_Humans) {
     controller.Update(fly, m_Obstacles);
   }
@@ -193,6 +210,10 @@ void Level::Update(Fly &fly) {
     }
   }
 
+  if (m_Humans.empty() && !fly.IsDead()) {
+    ScreenManager::Get().SwitchScenario(ScenarioType::EndScreen);
+    return;
+  }
 }
 
 void Level::StartScreenShake() {
