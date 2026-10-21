@@ -54,7 +54,9 @@ endif()
 add_executable(flystate
     "${CMAKE_SOURCE_DIR}/src/game.cpp"
     "${CMAKE_SOURCE_DIR}/src/screen_manager.cpp"
+    "${CMAKE_SOURCE_DIR}/src/AssetMap.cpp"
     "${CMAKE_SOURCE_DIR}/src/main_menu.cpp"
+    "${CMAKE_SOURCE_DIR}/src/DeathScreen.cpp"
     "${CMAKE_SOURCE_DIR}/src/button.cpp"
     "${CMAKE_SOURCE_DIR}/src/level_select.cpp"
     "${CMAKE_SOURCE_DIR}/src/level.cpp"
@@ -63,6 +65,7 @@ add_executable(flystate
     "${CMAKE_SOURCE_DIR}/src/IKSolver.cpp"  
     "${CMAKE_SOURCE_DIR}/src/Human.cpp"  
     "${CMAKE_SOURCE_DIR}/src/HumanController.cpp"  
+    "${CMAKE_SOURCE_DIR}/src/ValueAnimator.cpp"
 )
 target_link_libraries(flystate PRIVATE raylib)
 target_compile_features(flystate PRIVATE cxx_std_20)
