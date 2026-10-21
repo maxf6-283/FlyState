@@ -19,8 +19,9 @@ void Level::OnEnter(Fly &fly) {
   m_ValueAnimator.Reset();
   m_ScreenShakeTimer = 0.0f;
   m_ScreenShakeOffset = Vector2Zero();
-  for (const Vector2 position : m_HumanPositions) {
-    m_Humans.emplace_back(position);
+  for (const HumanSpawn &spawn : m_HumanSpawns) {
+    m_Humans.emplace_back(spawn.position);
+    m_Humans.back().SetForward(spawn.forward);
   }
   for (HumanController &human : m_Humans) {
     human.SetParriedCallback([this]() { StartScreenShake(); });

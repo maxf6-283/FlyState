@@ -20,8 +20,10 @@ public:
         m_ThumbnailTexture(thumbnail_texture), m_BackgroundKey(background_key),
         m_AssetMap(asset_map) {}
 
-  void addHuman(Vector2 position) { m_HumanPositions.push_back(position); }
-  void addObstacle(Obstacle obstacle) { m_Obstacles.push_back(obstacle); }
+  void AddHuman(Vector2 position, bool forward) {
+    m_HumanSpawns.push_back({position, forward});
+  }
+  void AddObstacle(Obstacle obstacle) { m_Obstacles.push_back(obstacle); }
 
   void OnEnter(Fly &fly) override;
   void OnExit(Fly &fly) override;
@@ -46,7 +48,11 @@ private:
   Texture2D m_Background{};
 
   std::vector<Obstacle> m_Obstacles;
-  std::vector<Vector2> m_HumanPositions;
+  struct HumanSpawn {
+    Vector2 position;
+    bool forward;
+  };
+  std::vector<HumanSpawn> m_HumanSpawns;
 
   Camera2D m_Camera;
 

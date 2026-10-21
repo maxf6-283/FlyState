@@ -34,6 +34,7 @@ public:
   void SlappedFly(Fly *fly);
   void SetKeyboardAsset(Sound keyboard) { m_Keyboard = keyboard; }
   void SetClosest(bool closest);
+  void SetForward(bool forward) { m_Model.SetForward(forward); }
   void SetParryAsset(Sound parry) { m_Parry = parry; }
   void SetParriedCallback(const std::function<void()> &callback) {
     m_ParriedCallback = callback;

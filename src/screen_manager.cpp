@@ -101,27 +101,34 @@ void ScreenManager::LoadAllAssets() {
   Level conference_level("bg1", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
-  conference_level.addHuman({680.0f, 400.0f});
-  conference_level.addObstacle({{0, 600, 20000, 800}, GRAY});
-  conference_level.addObstacle({{300, 400, 300, 100}, GRAY});
-  conference_level.addObstacle({{300, 400, 50, 300}, GRAY});
-  conference_level.addObstacle({{500, 400, 50, 300}, GRAY});
-  conference_level.addObstacle({{450, 200, 50, 200}, BLACK});
-  conference_level.addObstacle({Rectangle{1200, 300, 50, 100}, GOLD, 6, 100,
+  conference_level.AddHuman({680.0f, 400.0f}, false);
+  conference_level.AddObstacle({{0, 600, 20000, 800}, GRAY});
+  conference_level.AddObstacle({{300, 400, 300, 100}, GRAY});
+  conference_level.AddObstacle({{300, 400, 50, 300}, GRAY});
+  conference_level.AddObstacle({{500, 400, 50, 300}, GRAY});
+  conference_level.AddObstacle({{450, 200, 50, 200}, BLACK});
+  conference_level.AddObstacle({Rectangle{1200, 300, 50, 100}, GOLD, 6, 100,
                                 ObstacleType::Destructible});
-  conference_level.addObstacle({Rectangle{1200, 400, 50, 500}, GRAY, 6, 100});
+  conference_level.AddObstacle({Rectangle{1200, 400, 50, 500}, GRAY, 6, 100});
 
   m_Levels.push_back(conference_level);
 
   Level cubicle_level("bg2", thumbnail2_texture, "Level 2",
                       ScenarioType::LevelCubicle, &m_Assets);
 
-  cubicle_level.addHuman({0.0f, 400.0f});
-  cubicle_level.addHuman({500.0f, 400.0f});
+  cubicle_level.AddHuman({100.0f, 400.0f}, true);
+  cubicle_level.AddHuman({1000.0f, 400.0f}, false);
+
+  cubicle_level.AddObstacle({{0, 600, 20000, 800}, GRAY});
+  cubicle_level.AddObstacle({{300, 400, 300, 100}, GRAY});
+  cubicle_level.AddObstacle({{300, 400, 50, 300}, GRAY});
+  cubicle_level.AddObstacle({{500, 400, 50, 300}, GRAY});
+  cubicle_level.AddObstacle({{450, 200, 50, 200}, BLACK});
+
   m_Levels.push_back(cubicle_level);
 
   Level boss_level("bg3", thumbnail3_texture, "Dummy Level 3",
                    ScenarioType::LevelBoss, &m_Assets);
-  boss_level.addHuman({680.0f, 400.0f});
+  boss_level.AddHuman({680.0f, 400.0f}, false);
   m_Levels.push_back(boss_level);
 }
