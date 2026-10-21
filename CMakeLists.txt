@@ -57,6 +57,7 @@ add_executable(flystate
     "${CMAKE_SOURCE_DIR}/src/AssetMap.cpp"
     "${CMAKE_SOURCE_DIR}/src/main_menu.cpp"
     "${CMAKE_SOURCE_DIR}/src/DeathScreen.cpp"
+    "${CMAKE_SOURCE_DIR}/src/EndScreen.cpp"
     "${CMAKE_SOURCE_DIR}/src/button.cpp"
     "${CMAKE_SOURCE_DIR}/src/level_select.cpp"
     "${CMAKE_SOURCE_DIR}/src/level.cpp"
