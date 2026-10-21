@@ -29,6 +29,10 @@ void Button::Update(const Fly& fly) {
 }
 
 void Button::Draw() const {
+  if (m_IsColored) {
+    DrawRectangleRec(m_Area, m_Holding ? m_HeldColor : (m_Hovering ? m_HoveredColor : m_Color));
+    return;
+  }
   if (m_Holding) {
     DrawTexture(m_Held, m_Position.x, m_Position.y, m_HeldTint);
   } else if (m_Hovering) {

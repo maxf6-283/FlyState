@@ -7,14 +7,37 @@
 #include "obstacle.h"
 #include "raylib.h"
 
-Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {
-  m_Buzz = LoadSound("assets/buzzsfx.wav");
-};
+Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {}
 
 void Fly::Update(const std::vector<Obstacle> &obstacles) {
 
   if (IsKeyPressed(KEY_SPACE) && !IsSoundPlaying(m_Buzz)) {
     PlaySound(m_Buzz);
+  }
+
+  if (IsKeyPressed(KEY_Q) && m_CanParry && m_CanDash) {
+    m_CanParry = false;
+    m_Parrying = true;
+    m_ParryTimer = 0.0f;
+    m_velocity = Vector2Zero();
+  }
+
+  if (!m_CanParry && !m_Parrying) {
+    m_ParryTimer += GetFrameTime();
+    if (m_ParryTimer >= m_ParryCooldown) {
+      m_ParryTimer = 0.0f;
+      m_CanParry = true;
+    }
+  }
+
+  if (m_Parrying) {
+    currentMaxSpeed = 2.0f;
+    m_ParryTimer += GetFrameTime();
+    if (m_ParryTimer >= m_ParryDuration) {
+      m_ParryTimer = 0.0f;
+      currentMaxSpeed = MAX_SPEED;
+      m_Parrying = false;
+    }
   }
 
   float dt =
@@ -36,6 +59,37 @@ void Fly::Update(const std::vector<Obstacle> &obstacles) {
     inputDirection = Vector2Normalize(inputDirection);
   }
 
+  if (IsKeyPressed(KEY_LEFT_SHIFT) && m_CanDash && m_CanParry) {
+    m_velocity = Vector2Zero();
+    m_CanDash = false;
+    m_DashTimer = 0.0f;
+    m_Dashing = true;
+    m_DashDirection = inputDirection;
+    if (m_DashDirection == Vector2Zero()) {
+      m_DashDirection = {1.0f, 0.0f};
+    }
+  }
+
+  if (!m_CanDash && !m_Dashing) {
+    m_DashTimer += GetFrameTime();
+    if (m_DashTimer >= m_DashCooldown) {
+      m_DashTimer = 0.0f;
+      m_CanDash = true;
+    }
+  }
+
+  if (m_Dashing) {
+    currentMaxSpeed = 10.0f;
+    inputDirection = m_DashDirection;
+
+    m_DashTimer += GetFrameTime();
+    if (m_DashTimer >= m_DashDuration) {
+      m_DashTimer = 0.0f;
+      currentMaxSpeed = MAX_SPEED;
+      m_Dashing = false;
+    }
+  }
+
   // 2. Apply acceleration over time
   m_velocity.x += inputDirection.x * ACCELERATION * dt;
   m_velocity.y += inputDirection.y * ACCELERATION * dt;
@@ -53,8 +107,8 @@ void Fly::Update(const std::vector<Obstacle> &obstacles) {
   }
 
   // 4. 💡 Limit maximum speed (Speed Cap)
-  if (Vector2LengthSqr(m_velocity) > MAX_SPEED * MAX_SPEED) {
-    m_velocity = Vector2Normalize(m_velocity) * MAX_SPEED;
+  if (Vector2LengthSqr(m_velocity) > currentMaxSpeed * currentMaxSpeed) {
+    m_velocity = Vector2Normalize(m_velocity) * currentMaxSpeed;
   }
 
   // 5. Update position using our calculated velocity
@@ -62,11 +116,38 @@ void Fly::Update(const std::vector<Obstacle> &obstacles) {
 }
 
 bool Fly::IsBuzzing() const { return IsSoundPlaying(m_Buzz); }
+bool Fly::CanDash() const { return !m_Dashing && m_CanDash; }
+bool Fly::IsInvincible() const { return m_Dashing; }
 
-void Fly::Draw() const { DrawCircleV(m_position, 15, MAROON); }
+void Fly::Draw() const {
+  DrawCircleV(m_position, 15, MAROON);
+  if (m_Parrying) {
+    DrawCircleLinesEx(m_position, 20.0f, 2.0f, ColorBrightness(MAROON, -0.5));
+  }
+}
 
 void Fly::Offset(Vector2 pos) { m_position += pos; }
 
 void Fly::SetPos(Vector2 pos) { m_position = pos; }
 
 void Fly::SetVel(Vector2 vel) { m_velocity = vel; }
+
+void Fly::Slapped() {
+  m_Dead = true;
+
+  float halfWidth = GetScreenWidth() * 0.5f;
+  float halfHeight = GetScreenHeight() * 0.5f;
+  m_position = Vector2{halfWidth, halfHeight};
+}
+bool Fly::IsDead() const { return m_Dead; }
+
+bool Fly::CanParry() const { return !m_Parrying && m_CanParry; }
+
+bool Fly::IsParrying() const { return m_Parrying; }
+
+void Fly::Reset() {
+  m_Dead = false;
+  m_Money = 0;
+  m_HumansDestroyedCounter = 0;
+  currentMaxSpeed = MAX_SPEED;
+}

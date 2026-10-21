@@ -4,6 +4,7 @@
 
 enum class ScenarioType {
   MainMenu,
+  DeathScreen,
   LevelSelect,
   LevelCubicle,
   LevelConference,

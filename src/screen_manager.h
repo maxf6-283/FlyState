@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include "DeathScreen.h"
+#include "AssetMap.h"
 #include "fly.h"
 #include "level.h"
 #include "level_select.h"
@@ -23,6 +25,8 @@ public:
   void SwitchScenario(ScenarioType sceneType);
 
   const std::vector<Level> &levels() const { return m_Levels; }
+  const AssetMap &assets() const { return m_Assets; }
+  Font font() const { return m_Font; }
 
   static ScreenManager &Get() {
     static ScreenManager instance{};
@@ -30,17 +34,21 @@ public:
   }
 
 private:
- ScreenManager();
+  ScreenManager();
+  void LoadAllAssets();
 
- Scenario *GetScenario(ScenarioType sceneType);
+  Scenario *GetScenario(ScenarioType sceneType);
 
- Fly m_Fly{Vector2{static_cast<float>(GetRandomValue(0, GetScreenWidth())),
-                   static_cast<float>(GetRandomValue(0, GetScreenHeight()))}};
+  Fly m_Fly{Vector2{static_cast<float>(GetRandomValue(0, GetScreenWidth())),
+                    static_cast<float>(GetRandomValue(0, GetScreenHeight()))}};
 
- Scenario *m_Scenario = &m_MainMenu;
+  Scenario *m_Scenario = &m_MainMenu;
 
- MainMenu m_MainMenu{};
- LevelSelect m_LevelSelect{};
+  MainMenu m_MainMenu{};
+  DeathScreen m_DeathScreen{};
+  LevelSelect m_LevelSelect{};
 
- std::vector<Level> m_Levels;
+  std::vector<Level> m_Levels;
+  AssetMap m_Assets;
+  Font m_Font{};
 };

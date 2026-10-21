@@ -48,6 +48,11 @@ void UpdateFoot(Vector2 &hip, Human::Foot &foot, bool forward) {
   }
 }
 
+void Human::Parried() {
+  m_LeftArmAction.callbacks.clear();
+  m_RightArmAction.callbacks.clear();
+}
+
 void Human::Update() {
   if (m_MoveDuration != 0.0f) {
     m_MoveTimer += GetFrameTime();
@@ -149,8 +154,22 @@ void Human::Update() {
     }
   };
 
-  auto executeArmAction = [this](ArmAction &armAction, bool left,
-                                 Vector2 shoulder) {
+  auto executeCallbacks = [](ArmAction &armAction, Vector2 handPosition) {
+    ActionCallbacks callbacks;
+    callbacks.swap(armAction.callbacks);
+
+    for (const ActionCallback &callback : callbacks) {
+      if (callback) {
+        callback(handPosition);
+      }
+    }
+
+    callbacks.clear();
+  };
+
+  auto executeArmAction = [this, &executeCallbacks](ArmAction &armAction,
+                                                    bool left,
+                                                    Vector2 shoulder) {
     bool armDone = left ? LeftArmDone() : RightArmDone();
     if (armAction.state == ArmState::Slap) {
       if (armDone || armAction.windupState == ArmAction::WindupState::Begin) {
@@ -177,6 +196,7 @@ void Human::Update() {
           break;
         case ArmAction::WindupState::Done:
           armAction.state = ArmState::Any;
+          executeCallbacks(armAction, left ? GetLeftHand() : GetRightHand());
           break;
         }
       }
@@ -207,6 +227,7 @@ void Human::Update() {
           break;
         case ArmAction::WindupState::Done:
           armAction.state = ArmState::Any;
+          executeCallbacks(armAction, left ? GetLeftHand() : GetRightHand());
           break;
         }
       }
@@ -290,7 +311,8 @@ void Human::MoveTo(Vector2 target, float duration) {
   m_PrevPosition = m_Position;
 }
 
-void Human::LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime) {
+void Human::LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime,
+                     const ActionCallbacks &callbacks) {
   if (m_LeftArmAction.state != ArmState::Any)
     return;
 
@@ -300,9 +322,11 @@ void Human::LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime) {
 
   m_LeftArmAction.state = ArmState::Slap;
   m_LeftArmAction.target = slapTarget;
+  m_LeftArmAction.callbacks = callbacks;
 }
 
-void Human::RightSlap(Vector2 slapTarget, float windupTime, float releaseTime) {
+void Human::RightSlap(Vector2 slapTarget, float windupTime, float releaseTime,
+                      const ActionCallbacks &callbacks) {
   if (m_RightArmAction.state != ArmState::Any)
     return;
 
@@ -312,10 +336,11 @@ void Human::RightSlap(Vector2 slapTarget, float windupTime, float releaseTime) {
 
   m_RightArmAction.state = ArmState::Slap;
   m_RightArmAction.target = slapTarget;
+  m_RightArmAction.callbacks = callbacks;
 }
 
-void Human::LeftPunch(Vector2 punchTarget, float windupTime,
-                      float releaseTime) {
+void Human::LeftPunch(Vector2 punchTarget, float windupTime, float releaseTime,
+                      const ActionCallbacks &callbacks) {
   if (m_LeftArmAction.state != ArmState::Any)
     return;
 
@@ -325,10 +350,11 @@ void Human::LeftPunch(Vector2 punchTarget, float windupTime,
 
   m_LeftArmAction.state = ArmState::Punch;
   m_LeftArmAction.target = punchTarget;
+  m_LeftArmAction.callbacks = callbacks;
 }
 
-void Human::RightPunch(Vector2 punchTarget, float windupTime,
-                       float releaseTime) {
+void Human::RightPunch(Vector2 punchTarget, float windupTime, float releaseTime,
+                       const ActionCallbacks &callbacks) {
   if (m_RightArmAction.state != ArmState::Any)
     return;
 
@@ -338,6 +364,7 @@ void Human::RightPunch(Vector2 punchTarget, float windupTime,
 
   m_RightArmAction.state = ArmState::Punch;
   m_RightArmAction.target = punchTarget;
+  m_RightArmAction.callbacks = callbacks;
 }
 
 Human::LimbOutput Human::GetRightArm() const { return m_RightArm; }

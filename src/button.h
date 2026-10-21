@@ -22,6 +22,11 @@ public:
        m_HeldTint(held_tint),
        m_OnClick(onClick) {}
 
+ Button(Rectangle area, Vector2 pos, Color color, const std::function<void()>& onClick,
+        Color hoveredColor = LIGHTGRAY, Color heldColor = GRAY)
+     : m_Area(area), m_Position(pos), m_Color(color), m_HoveredColor(hoveredColor),
+       m_HeldColor(heldColor), m_OnClick(onClick), m_IsColored(true) {}
+
  void Update(const Fly& fly);
 
  void Draw() const;
@@ -33,8 +38,8 @@ public:
  Rectangle area() const { return m_Area; }
 
 private:
- bool m_Hovering;
- bool m_Holding;
+ bool m_Hovering = false;
+ bool m_Holding = false;
 
  Rectangle m_Area;
  Vector2 m_Position;
@@ -45,6 +50,11 @@ private:
  Color m_HoveredTint;
  Texture2D m_Held;
  Color m_HeldTint;
+
+  Color m_Color = WHITE;
+  Color m_HoveredColor = LIGHTGRAY;
+  Color m_HeldColor = GRAY;
+  bool m_IsColored = false;
 
  std::function<void()> m_OnClick;
 };

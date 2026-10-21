@@ -6,33 +6,39 @@
 #include "fly.h"
 #include "screen_manager.h"
 
-void MainMenu::OnEnter(Fly& fly) { m_StartButton.Reset(); }
+void MainMenu::OnEnter(Fly &fly) { m_StartButton.Reset(); }
 
-void MainMenu::OnExit(Fly& fly) {}
+void MainMenu::OnExit(Fly &fly) {}
 
-void MainMenu::Draw(const Fly& fly) const {
+void MainMenu::Draw(const Fly &fly) const {
   ClearBackground(Color{190, 190, 190, 255});
-  DrawText("FlyState Game Jam", 32, 32, 28, DARKGRAY);
-  DrawText("Start working on the game!", 32, 72, 20, GRAY);
+
+  DrawTextEx(ScreenManager::Get().font(), "FlyState", {32, 32}, 64, 0,
+             DARKGRAY);
+
+  float start = 114;
+  DrawTextEx(ScreenManager::Get().font(), "Q - Parry", {32, start}, 32, 0,
+             GRAY);
+
+  DrawTextEx(ScreenManager::Get().font(), "Left Shift - Dash", {32, start + 40},
+             32, 0, GRAY);
+
+  DrawTextEx(ScreenManager::Get().font(), "Space Bar - Select/Buzz",
+             {32, start + 80}, 32, 0, GRAY);
+
+  DrawTextEx(ScreenManager::Get().font(), "WASD - Movement", {32, start + 120},
+             32, 0, GRAY);
 
   m_StartButton.Draw();
   fly.Draw();
 }
 
-void MainMenu::Update(Fly& fly) {
+void MainMenu::Update(Fly &fly) {
   fly.Update();
   m_StartButton.Update(fly);
 }
 
 Button MainMenu::GetStartButton() {
-  RenderTexture2D img = LoadRenderTexture(200, 100);
-
-  // clang-format off
-  BeginTextureMode(img);
-    ClearBackground(WHITE);
-  EndTextureMode();
-  // clang-format on
-
   return Button{Rectangle{
                     .x = 380,
                     .y = 400,
@@ -43,12 +49,9 @@ Button MainMenu::GetStartButton() {
                     .x = 380,
                     .y = 400,
                 },
-                img.texture,
-                img.texture,
-                img.texture,
+                WHITE,
                 MainMenu::StartButtonOnClick,
                 RED,
-                GREEN,
                 BLUE};
 }
 

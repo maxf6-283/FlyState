@@ -22,11 +22,60 @@ HumanController::HumanController(Vector2 position) : m_Model({}, {}) {
   m_Model = Human(leftFoot, rightFoot, 0.0f);
   m_Model.SetPosition(position);
   m_BodyTarget = position;
-
-  m_Keyboard = LoadSound("assets/type.wav");
 }
 
-void HumanController::Chase(Fly &fly) {
+std::function<void(Vector2)>
+HumanController::FlyHitCallback(Fly &fly, std::vector<Obstacle> &obstacles) {
+  Fly *flyPtr = &fly;
+  std::vector<Obstacle> *obstaclePtr = &obstacles;
+  auto slapEnd = [this, flyPtr, obstaclePtr](Vector2 handPos) {
+    if (!CheckCollisionCircles(handPos, 20.0f, flyPtr->position(), 15)) {
+      if (m_State == State::AnnoyedWork) {
+        m_PunchCount += 1;
+        if (m_PunchCount >= m_ChaseThreshold) {
+          m_State = State::Chase;
+          StopSound(m_Keyboard);
+        }
+      }
+      // TODO: Destroy objects here?
+    } else {
+      if (flyPtr->IsParrying()) {
+        if (m_State == State::AnnoyedWork) {
+          m_State = State::Chase;
+          StopSound(m_Keyboard);
+        }
+        m_Staggered = true;
+        m_Model.Parried();
+        PlaySound(m_Parry);
+        if (m_ParriedCallback) {
+          m_ParriedCallback();
+        }
+      }
+      if (!flyPtr->IsInvincible() && !flyPtr->IsParrying()) {
+        SlappedFly(flyPtr);
+      }
+
+      for (Obstacle &obstacle : *obstaclePtr) {
+        Rectangle obstacleBounds = obstacle.area();
+        if (CheckCollisionCircleRec(handPos, 40.0f, obstacleBounds)) {
+          obstacle.IncrementHitCounter();
+          TraceLog(LOG_INFO, "Object hit!");
+          if (obstacle.IsDestroyed()) {
+            flyPtr->AddMoney(obstacle.value());
+            if (m_ObjectDestroyedCallback) {
+              m_ObjectDestroyedCallback(obstacle.value(), obstacle.position());
+            }
+            m_State = State::Death;
+          }
+        }
+      }
+    }
+  };
+
+  return slapEnd;
+}
+
+void HumanController::Chase(Fly &fly, std::vector<Obstacle> &obstacle) {
   Vector2 flyPosition = fly.position();
   float flyHumanDist = Vector2DistanceSqr(flyPosition, m_Model.GetPosition());
   Vector2 flyToHuman = Vector2Normalize(m_Model.GetPosition() - flyPosition);
@@ -55,38 +104,48 @@ void HumanController::Chase(Fly &fly) {
                         0.1f);
     }
   } else {
-    m_Model.LeftPunch(flyPosition, 0.3, 0.3);
-    m_Model.RightPunch(flyPosition, 0.4, 0.3);
+    auto punchEnd = FlyHitCallback(fly, obstacle);
+    m_Model.LeftPunch(flyPosition, 0.2, 0.15, {punchEnd});
+    m_Model.RightPunch(flyPosition, 0.25, 0.15, {punchEnd});
   }
 }
 
-void HumanController::Work(Fly &fly) {
+void HumanController::Work(Fly &fly, std::vector<Obstacle> &obstacle) {
   if (!IsSoundPlaying(m_Keyboard)) {
     PlaySound(m_Keyboard);
   }
   bool forward = m_Model.GetForward();
   Vector2 position = m_Model.GetPosition();
   position += (forward ? Vector2{70.0f, 50.0f} : Vector2{-70.0f, 50.0f});
+
   m_Model.LeftSlap(position, 0.1, 0.3);
   m_Model.RightSlap(position, 0.2, 0.3);
 }
 
-void HumanController::AnnoyedWork(Fly &fly) {
+void HumanController::SlappedFly(Fly *fly) {
+  if (fly->IsInvincible())
+    return;
+  fly->Slapped();
+}
+
+void HumanController::AnnoyedWork(Fly &fly, std::vector<Obstacle> &obstacle) {
   Vector2 flyPosition = fly.position();
   float flyHumanDist = Vector2DistanceSqr(flyPosition, m_Model.GetPosition());
 
   if (flyHumanDist > 30000) {
-    Work(fly);
+    Work(fly, obstacle);
   } else {
+    auto slapEnd = FlyHitCallback(fly, obstacle);
     StopSound(m_Keyboard);
-    m_Model.LeftSlap(flyPosition, 0.4, 0.1);
-    m_Model.RightSlap(flyPosition, 0.5, 0.1);
+    m_Model.LeftSlap(flyPosition, 0.4, 0.1, {slapEnd});
+    m_Model.RightSlap(flyPosition, 0.5, 0.1, {slapEnd});
   }
 }
 
 Vector2 HumanController::GetPosition() const { return m_Model.GetPosition(); }
 
-void HumanController::AggressiveStand(Fly &fly) {
+void HumanController::AggressiveStand(Fly &fly,
+                                      std::vector<Obstacle> &obstacle) {
   Vector2 flyPosition = fly.position();
   float flyHumanDist = Vector2DistanceSqr(flyPosition, m_Model.GetPosition());
 
@@ -95,16 +154,18 @@ void HumanController::AggressiveStand(Fly &fly) {
   m_Model.SetForward(flyPosition.x >= humanX);
 
   if (flyHumanDist < 60000) {
-    m_Model.LeftPunch(flyPosition, 0.3, 0.15);
-    m_Model.RightPunch(flyPosition, 0.4, 0.15);
+    auto punchEnd = FlyHitCallback(fly, obstacle);
+    m_Model.LeftPunch(flyPosition, 0.3, 0.15, {punchEnd});
+    m_Model.RightPunch(flyPosition, 0.4, 0.15, {punchEnd});
   } else {
     m_Model.StabilizeBody();
   }
 }
 
-void HumanController::Death(Fly &fly) {
+void HumanController::Death(Fly &fly, std::vector<Obstacle> &obstacle) {
+  (void)fly;
+  (void)obstacle;
   if (m_DeathDone) {
-    // TODO: Check when body move is done then delete controller
     return;
   }
   bool forward = true;
@@ -119,32 +180,40 @@ void HumanController::Death(Fly &fly) {
   m_Model.MoveTo(literallyHeaven, 5.0f);
 }
 
-void HumanController::Update(Fly &fly) {
-  if (IsKeyPressed(KEY_Q)) {
-    m_State = State::Death;
+void HumanController::Update(Fly &fly, std::vector<Obstacle> &obstacles) {
+  // TODO: Use obstacles :)
+  (void)obstacles;
+  if (m_Staggered) {
+    m_StaggerTimer += GetFrameTime();
+
+    if (m_StaggerTimer >= m_StaggerDuration) {
+      m_StaggerTimer = 0.0f;
+      m_Staggered = false;
+    }
+    return;
   }
   switch (m_State) {
   case State::Work: {
-    Work(fly);
+    Work(fly, obstacles);
     break;
   }
   case State::AnnoyedWork: {
-    AnnoyedWork(fly);
+    AnnoyedWork(fly, obstacles);
     break;
   }
   case State::Chase: {
-    Chase(fly);
+    Chase(fly, obstacles);
     break;
   }
   case State::AggressiveStand: {
-    AggressiveStand(fly);
+    AggressiveStand(fly, obstacles);
     break;
   }
   case State::Talk: {
     break;
   }
   case State::Death: {
-    Death(fly);
+    Death(fly, obstacles);
     break;
   }
   }

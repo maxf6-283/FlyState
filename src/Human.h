@@ -3,10 +3,16 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include <functional>
+#include <vector>
+
 #include "IKSolver.h"
 
 class Human {
 public:
+  using ActionCallback = std::function<void(Vector2)>;
+  using ActionCallbacks = std::vector<ActionCallback>;
+
   enum class ArmState {
     Slap,
     Punch,
@@ -25,6 +31,7 @@ public:
     float releaseTime = 0.0f;
 
     WindupState windupState = WindupState::Done;
+    ActionCallbacks callbacks;
   };
 
   struct Foot {
@@ -66,14 +73,20 @@ public:
 
   void MoveTo(Vector2 target, float duration);
 
+  void Parried();
+
   void LeftArmTo(Vector2 target, float duration);
   void RightArmTo(Vector2 target, float duration);
 
-  void LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime);
-  void RightSlap(Vector2 slapTarget, float windupTime, float releaseTime);
+  void LeftSlap(Vector2 slapTarget, float windupTime, float releaseTime,
+                const ActionCallbacks &callbacks = {});
+  void RightSlap(Vector2 slapTarget, float windupTime, float releaseTime,
+                 const ActionCallbacks &callbacks = {});
 
-  void LeftPunch(Vector2 punchTarget, float windupTime, float releaseTime);
-  void RightPunch(Vector2 punchTarget, float windupTime, float releaseTime);
+  void LeftPunch(Vector2 punchTarget, float windupTime, float releaseTime,
+                 const ActionCallbacks &callbacks = {});
+  void RightPunch(Vector2 punchTarget, float windupTime, float releaseTime,
+                  const ActionCallbacks &callbacks = {});
 
   bool LeftArmDone() const;
   bool RightArmDone() const;
