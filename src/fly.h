@@ -25,6 +25,8 @@ public:
   void SetVel(Vector2 vel);
 
   bool IsBuzzing() const;
+  bool CanBuzz() const;
+  void SetCanBuzz(bool canBuzz);
   bool CanDash() const;
   bool CanParry() const;
   bool IsParrying() const;
@@ -46,6 +48,7 @@ private:
   Vector2 m_velocity; // Tracks speed and direction dynamically
 
   bool m_Dead = false;
+  bool m_CanBuzz = false;
   int m_Money = 0;
   int m_HumansDestroyedCounter = 0;
 

@@ -10,8 +10,7 @@
 Fly::Fly(Vector2 pos) : m_position{pos}, m_velocity{0.0f, 0.0f} {}
 
 void Fly::Update(const std::vector<Obstacle> &obstacles) {
-
-  if (IsKeyPressed(KEY_SPACE) && !IsSoundPlaying(m_Buzz)) {
+  if (m_CanBuzz && IsKeyPressed(KEY_SPACE) && !IsSoundPlaying(m_Buzz)) {
     PlaySound(m_Buzz);
   }
 
@@ -116,6 +115,8 @@ void Fly::Update(const std::vector<Obstacle> &obstacles) {
 }
 
 bool Fly::IsBuzzing() const { return IsSoundPlaying(m_Buzz); }
+bool Fly::CanBuzz() const { return m_CanBuzz; }
+void Fly::SetCanBuzz(bool canBuzz) { m_CanBuzz = canBuzz; }
 bool Fly::CanDash() const { return !m_Dashing && m_CanDash; }
 bool Fly::IsInvincible() const { return m_Dashing; }
 

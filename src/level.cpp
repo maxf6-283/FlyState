@@ -12,6 +12,7 @@
 
 void Level::OnEnter(Fly &fly) {
   TraceLog(LOG_INFO, "Entered level %s", m_Name.c_str());
+  fly.SetCanBuzz(true);
   for (Obstacle &obstacle : m_Obstacles) {
     obstacle.Reset();
   }
@@ -68,6 +69,7 @@ void Level::OnEnter(Fly &fly) {
 }
 
 void Level::OnExit(Fly &fly) {
+  fly.SetCanBuzz(false);
   for (HumanController &human : m_Humans) {
     human.SetClosest(false);
   }
