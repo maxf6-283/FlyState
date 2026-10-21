@@ -67,18 +67,18 @@ HumanController::FlyHitCallback(Fly &fly, std::vector<Obstacle> &obstacles) {
       if (!flyPtr->IsInvincible() && !flyPtr->IsParrying()) {
         SlappedFly(flyPtr);
       }
+    }
 
-      for (Obstacle &obstacle : *obstaclePtr) {
-        Rectangle obstacleBounds = obstacle.area();
-        if (CheckCollisionCircleRec(handPos, 40.0f, obstacleBounds)) {
-          obstacle.IncrementHitCounter();
-          if (obstacle.IsDestroyed()) {
-            flyPtr->AddMoney(obstacle.value());
-            if (m_ObjectDestroyedCallback) {
-              m_ObjectDestroyedCallback(obstacle.value(), obstacle.position());
-            }
-            m_State = State::Death;
+    for (Obstacle &obstacle : *obstaclePtr) {
+      Rectangle obstacleBounds = obstacle.area();
+      if (CheckCollisionCircleRec(handPos, 40.0f, obstacleBounds)) {
+        obstacle.IncrementHitCounter();
+        if (obstacle.IsDestroyed()) {
+          flyPtr->AddMoney(obstacle.value());
+          if (m_ObjectDestroyedCallback) {
+            m_ObjectDestroyedCallback(obstacle.value(), obstacle.position());
           }
+          m_State = State::Death;
         }
       }
     }
