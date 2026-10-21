@@ -78,9 +78,7 @@ void ScreenManager::LoadAllAssets() {
 
   // clang-format off
   BeginTextureMode(bg);
-    ClearBackground(GRAY);
-    DrawRectangle(0, 0, 1000, 500, YELLOW);
-    DrawRectangle(0, 500, 1000, 500, PINK);
+    ClearBackground(ColorBrightness(RAYWHITE, 0.7));
   EndTextureMode();
   BeginTextureMode(bg2);
     ClearBackground(LIME);
@@ -100,18 +98,30 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg3", bg3.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
-  Obstacle test_obs = Obstacle({300, 400, 300, 100}, RED);
-  Obstacle test_obs2 = Obstacle(Rectangle{450, 300, 100, 100}, bg3.texture);
-  Obstacle destroyable_obs = Obstacle(Rectangle{1200, 300, 50, 50}, WHITE, 6,
-                                      100, ObstacleType::Destructible);
+  Level conference_level("bg1", thumbnail_texture, "Level 1",
+                         ScenarioType::LevelConference, &m_Assets);
 
-  m_Levels.push_back(Level("Dummy Level", ScenarioType::LevelConference,
-                           thumbnail_img, thumbnail_texture, "bg1",
-                           {test_obs, test_obs2, destroyable_obs}, &m_Assets));
-  m_Levels.push_back(Level("Dummy Level 2", ScenarioType::LevelCubicle,
-                           thumbnail2_img, thumbnail2_texture, "bg2", {},
-                           &m_Assets));
-  m_Levels.push_back(Level("Dummy Level 3", ScenarioType::LevelBoss,
-                           thumbnail3_img, thumbnail3_texture, "bg3", {},
-                           &m_Assets));
+  conference_level.addHuman({680.0f, 400.0f});
+  conference_level.addObstacle({{0, 600, 20000, 800}, GRAY});
+  conference_level.addObstacle({{300, 400, 300, 100}, GRAY});
+  conference_level.addObstacle({{300, 400, 50, 300}, GRAY});
+  conference_level.addObstacle({{500, 400, 50, 300}, GRAY});
+  conference_level.addObstacle({{450, 200, 50, 200}, BLACK});
+  conference_level.addObstacle({Rectangle{1200, 300, 50, 100}, GOLD, 6, 100,
+                                ObstacleType::Destructible});
+  conference_level.addObstacle({Rectangle{1200, 400, 50, 500}, GRAY, 6, 100});
+
+  m_Levels.push_back(conference_level);
+
+  Level cubicle_level("bg2", thumbnail2_texture, "Level 2",
+                      ScenarioType::LevelCubicle, &m_Assets);
+
+  cubicle_level.addHuman({0.0f, 400.0f});
+  cubicle_level.addHuman({500.0f, 400.0f});
+  m_Levels.push_back(cubicle_level);
+
+  Level boss_level("bg3", thumbnail3_texture, "Dummy Level 3",
+                   ScenarioType::LevelBoss, &m_Assets);
+  boss_level.addHuman({680.0f, 400.0f});
+  m_Levels.push_back(boss_level);
 }
