@@ -298,4 +298,6 @@ void HumanController::Draw() const {
   DrawCircleV(upperBody - Vector2{0.0f, 90.0f}, 45.0f, body);
 
   drawFront();
+
+  m_Model.DrawTargetIndicators();
 }

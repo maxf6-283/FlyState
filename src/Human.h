@@ -115,6 +115,10 @@ public:
 
   void StabilizeBody();
 
+  // Draws a marker at each active slap/punch target that shifts from
+  // yellow to orange during windup and turns red once the hit is released
+  void DrawTargetIndicators() const;
+
 private:
   Vector2 m_PrevPosition = Vector2Zero();
   Vector2 m_Position = Vector2Zero();

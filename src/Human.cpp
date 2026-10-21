@@ -398,3 +398,43 @@ bool Human::BodyMoveDone() const { return m_MoveTimer == m_MoveDuration; }
 
 Human::ArmState Human::LeftArmState() const { return m_LeftArmAction.state; }
 Human::ArmState Human::RightArmState() const { return m_RightArmAction.state; }
+
+void Human::DrawTargetIndicators() const {
+  auto drawIndicator = [](const ArmAction &armAction, const Hand &hand) {
+    // No callbacks means the action can't hurt anything (idle typing slaps,
+    // or an attack that has already been parried)
+    if (armAction.state == ArmState::Any || armAction.callbacks.empty())
+      return;
+
+    float t = (hand.duration > 0.0f) ? hand.timer / hand.duration : 1.0f;
+
+    Color color;
+    float radius;
+    switch (armAction.windupState) {
+    case ArmAction::WindupState::Begin:
+    case ArmAction::WindupState::Release:
+      // Winding up: fade in and warm up as the hit gets closer
+      color = ColorLerp(YELLOW, ORANGE, t);
+      color = Fade(color, 0.3f + 0.4f * t);
+      radius = Lerp(45.0f, 25.0f, t);
+      break;
+    case ArmAction::WindupState::Windup:
+    case ArmAction::WindupState::Done:
+      // Released: the hit is about to land
+      color = RED;
+      radius = 20.0f;
+      break;
+    }
+
+    Vector2 target = armAction.target;
+    DrawCircleV(target, radius, Fade(color, color.a / 255.0f * 0.35f));
+    DrawRing(target, radius - 3.0f, radius, 0.0f, 360.0f, 32, color);
+    DrawLineEx(target - Vector2{8.0f, 0.0f}, target + Vector2{8.0f, 0.0f},
+               2.0f, color);
+    DrawLineEx(target - Vector2{0.0f, 8.0f}, target + Vector2{0.0f, 8.0f},
+               2.0f, color);
+  };
+
+  drawIndicator(m_LeftArmAction, m_LeftHand);
+  drawIndicator(m_RightArmAction, m_RightHand);
+}
