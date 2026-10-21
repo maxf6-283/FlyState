@@ -12,19 +12,19 @@ void DeathScreen::Draw(const Fly &fly) const {
 
   const char *message = "You have been squashed!";
   const int messageFontSize = 48;
-  const int messageWidth = MeasureTextEx(ScreenManager::Get().font(), message,
-                                         messageFontSize, 0).x;
+  const int messageWidth =
+      MeasureTextEx(ScreenManager::Get().font(), message, messageFontSize, 0).x;
   DrawTextEx(ScreenManager::Get().font(), message,
-             {static_cast<float>((GetScreenWidth() - messageWidth) / 2), 220},
+             {static_cast<float>((GetScreenWidth() - messageWidth) * 0.5), 220},
              messageFontSize, 0, DARKGRAY);
 
   m_RevengeButton.Draw();
   const char *label = "Revenge";
   constexpr int fontSize = 32;
-  const int labelWidth = MeasureTextEx(ScreenManager::Get().font(), label,
-                                      fontSize, 0).x;
+  const int labelWidth =
+      MeasureTextEx(ScreenManager::Get().font(), label, fontSize, 0).x;
   DrawTextEx(ScreenManager::Get().font(), label,
-             {static_cast<float>((GetScreenWidth() - labelWidth) / 2), 350},
+             {static_cast<float>((GetScreenWidth() - labelWidth) * 0.5), 350},
              fontSize, 0, DARKGRAY);
   fly.Draw();
 }
@@ -47,7 +47,8 @@ Button DeathScreen::GetRevengeButton() {
       Vector2{static_cast<float>(buttonX), static_cast<float>(buttonY)},
       WHITE,
       DeathScreen::RevengeButtonOnClick,
-      RED, BLUE};
+      RED,
+      BLUE};
 }
 
 void DeathScreen::RevengeButtonOnClick() {
