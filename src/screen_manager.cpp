@@ -116,14 +116,27 @@ void ScreenManager::LoadAllAssets() {
   Level cubicle_level("bg2", thumbnail2_texture, "Level 2",
                       ScenarioType::LevelCubicle, &m_Assets);
 
-  cubicle_level.AddHuman({100.0f, 400.0f}, true);
-  cubicle_level.AddHuman({1000.0f, 400.0f}, false);
+  cubicle_level.AddHuman({150.0f, 400.0f}, true); //left npc
+  cubicle_level.AddHuman({700.0f, 400.0f}, false); //right npc
 
-  cubicle_level.AddObstacle({{0, 600, 20000, 800}, GRAY});
-  cubicle_level.AddObstacle({{300, 400, 300, 100}, GRAY});
-  cubicle_level.AddObstacle({{300, 400, 50, 300}, GRAY});
-  cubicle_level.AddObstacle({{500, 400, 50, 300}, GRAY});
-  cubicle_level.AddObstacle({{450, 200, 50, 200}, BLACK});
+  cubicle_level.AddObstacle({{0, 600, 20000, 800}, GRAY}); //Floor
+  cubicle_level.AddObstacle({{250, 400, 350, 100}, GRAY}); //desk top
+  cubicle_level.AddObstacle({{300, 400, 50, 300}, GRAY});  //desk right leg
+  cubicle_level.AddObstacle({{500, 400, 50, 300}, GRAY});  //desk left leg
+
+  cubicle_level.AddObstacle({{450, 200, 50, 200}, BLACK, 4, 100,
+                            ObstacleType::Destructible}); //right computer
+  cubicle_level.AddObstacle({ {360, 200, 50, 200}, BLACK, 4, 100,
+                            ObstacleType::Destructible }); //left computer
+  cubicle_level.AddObstacle({ {260, 390, 50, 10}, BLACK, 2, 50,
+                            ObstacleType::Destructible }); //right keyboard
+  cubicle_level.AddObstacle({ {540, 390, 50, 10}, BLACK, 2, 50,
+                            ObstacleType::Destructible }); //left keyboard
+
+  cubicle_level.AddObstacle({ {1500, 400, 125, 200}, BLUE, 6, 200,
+                            ObstacleType::Destructible}); //Water dispenser
+
+
 
   m_Levels.push_back(cubicle_level);
 
