@@ -13,10 +13,13 @@ void HumanController::Buzzed() {
 }
 
 void HumanController::SetClosest(bool closest) {
-  m_IsClosest = closest;
-  if (!m_IsClosest) {
+  // All controllers share the same keyboard Sound asset. Only stop it when
+  // this controller actually loses closest status; stopping it on every
+  // non-closest update would also stop the closest controller's sound.
+  if (m_IsClosest && !closest) {
     StopSound(m_Keyboard);
   }
+  m_IsClosest = closest;
 }
 
 HumanController::HumanController(Vector2 position) : m_Model({}, {}) {
@@ -120,9 +123,7 @@ void HumanController::Chase(Fly &fly, std::vector<Obstacle> &obstacle) {
 }
 
 void HumanController::Work(Fly &fly, std::vector<Obstacle> &obstacle) {
-  if (!m_IsClosest) {
-    StopSound(m_Keyboard);
-  } else {
+  if (m_IsClosest) {
     const float distance = Vector2Distance(GetPosition(), fly.position());
     const float volume =
         std::min(1.0f, std::exp(-distance / m_KeyboardVolumeFalloff));
@@ -290,9 +291,11 @@ void HumanController::Draw() const {
 
   drawBack();
 
+  Color body = ColorBrightness(BLUE, 0.1);
+
   // lower and upper body
-  DrawCircleV(lowerBody, 45.0f, YELLOW);
-  DrawCircleV(upperBody - Vector2{0.0f, 90.0f}, 45.0f, YELLOW);
+  DrawCircleV(lowerBody, 45.0f, body);
+  DrawCircleV(upperBody - Vector2{0.0f, 90.0f}, 45.0f, body);
 
   drawFront();
 }
