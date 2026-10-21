@@ -23,6 +23,16 @@
     var Module = {
       canvas: document.getElementById('canvas')
     };
+
+    // The menu is controlled with the keyboard, but miniaudio's default web
+    // unlock handler only listens for clicks and touch events. Resume the
+    // audio context from a keyboard gesture as well so sounds work before
+    // the first level transition.
+    document.addEventListener('keydown', function () {
+      if (window.miniaudio && window.miniaudio.unlock) {
+        window.miniaudio.unlock();
+      }
+    }, true);
   </script>
   {{{ SCRIPT }}}
 </body>
