@@ -6,22 +6,22 @@
 #include <vector>
 
 #include "HumanController.h"
+#include "ValueAnimator.h"
 #include "obstacle.h"
 #include "scenario.h"
-#include "ValueAnimator.h"
 
 class AssetMap;
 
 class Level : public Scenario {
 public:
-  Level(std::string name, ScenarioType scenario_type, Image thumbnail,
-        Texture2D thumbnail_texture, std::string background_key,
-        std::vector<Obstacle> obstacles,
-        AssetMap *asset_map)
-      : m_Name(name), m_Thumbnail(thumbnail), m_ScenarioType(scenario_type),
-        m_ThumbnailTexture(thumbnail_texture),
-        m_BackgroundKey(background_key), m_Obstacles(obstacles),
+  Level(std::string background_key, Texture2D thumbnail_texture,
+        std::string name, ScenarioType scenario_type, AssetMap *asset_map)
+      : m_Name(name), m_ScenarioType(scenario_type),
+        m_ThumbnailTexture(thumbnail_texture), m_BackgroundKey(background_key),
         m_AssetMap(asset_map) {}
+
+  void addHuman(Vector2 position) { m_HumanPositions.push_back(position); }
+  void addObstacle(Obstacle obstacle) { m_Obstacles.push_back(obstacle); }
 
   void OnEnter(Fly &fly) override;
   void OnExit(Fly &fly) override;
@@ -33,14 +33,12 @@ public:
     m_ScreenShakeDuration = duration;
   }
 
-  const Image &thumbnail() const { return m_Thumbnail; };
   Texture2D thumbnail_texture() const { return m_ThumbnailTexture; }
   const std::string &name() const { return m_Name; };
   ScenarioType scenario_type() const { return m_ScenarioType; };
 
 private:
   const std::string m_Name;
-  const Image m_Thumbnail;
   const ScenarioType m_ScenarioType;
   const Texture2D m_ThumbnailTexture;
 
@@ -48,6 +46,7 @@ private:
   Texture2D m_Background{};
 
   std::vector<Obstacle> m_Obstacles;
+  std::vector<Vector2> m_HumanPositions;
 
   Camera2D m_Camera;
 

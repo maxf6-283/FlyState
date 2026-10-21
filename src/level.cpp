@@ -19,12 +19,16 @@ void Level::OnEnter(Fly &fly) {
   m_ValueAnimator.Reset();
   m_ScreenShakeTimer = 0.0f;
   m_ScreenShakeOffset = Vector2Zero();
-  m_Humans.emplace_back(Vector2{680.0f, 400.0f});
-  m_Humans.back().SetParriedCallback([this]() { StartScreenShake(); });
-  m_Humans.back().SetObjectDestroyedCallback(
-      [this](int value, Vector2 position) {
-        m_ValueAnimator.AddValue(value, position);
-      });
+  for (const Vector2 position : m_HumanPositions) {
+    m_Humans.emplace_back(position);
+  }
+  for (HumanController &human : m_Humans) {
+    human.SetParriedCallback([this]() { StartScreenShake(); });
+    human.SetObjectDestroyedCallback(
+        [this](int value, Vector2 position) {
+          m_ValueAnimator.AddValue(value, position);
+        });
+  }
 
   const auto background = m_AssetMap->GetAsset(m_BackgroundKey);
   if (background && std::holds_alternative<Texture2D>(*background)) {
