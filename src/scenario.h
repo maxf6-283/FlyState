@@ -9,6 +9,7 @@ enum class ScenarioType {
   LevelCubicle,
   LevelConference,
   LevelBoss,
+  LevelFinalBoss,
   EndScreen,
 };
 

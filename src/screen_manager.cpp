@@ -57,6 +57,7 @@ void ScreenManager::LoadAllAssets() {
   // dummy level
   RenderTexture2D thumbnail = LoadRenderTexture(100, 100);
   RenderTexture2D thumbnail2 = LoadRenderTexture(100, 100);
+  RenderTexture2D thumbnail4 = LoadRenderTexture(100, 100);
 
   // clang-format off
   BeginTextureMode(thumbnail);
@@ -64,6 +65,9 @@ void ScreenManager::LoadAllAssets() {
   EndTextureMode();
   BeginTextureMode(thumbnail2);
     ClearBackground(LIME);
+  EndTextureMode();
+  BeginTextureMode(thumbnail4);
+    ClearBackground(MAROON);
   EndTextureMode();
   // clang-format on
 
@@ -73,10 +77,13 @@ void ScreenManager::LoadAllAssets() {
   Texture2D thumbnail_texture = LoadTextureFromImage(thumbnail_img);
   Texture2D thumbnail2_texture = LoadTextureFromImage(thumbnail2_img);
   Texture2D thumbnail3_texture = LoadTextureFromImage(thumbnail3_img);
+  Image thumbnail4_img = LoadImageFromTexture(thumbnail4.texture);
+  Texture2D thumbnail4_texture = LoadTextureFromImage(thumbnail4_img);
 
   RenderTexture2D bg = LoadRenderTexture(2000, 1000);
   RenderTexture2D bg2 = LoadRenderTexture(3000, 1000);
   RenderTexture2D bg3 = LoadRenderTexture(1000, 1000);
+  RenderTexture2D bg4 = LoadRenderTexture(2000, 1000);
 
   // Sprite Asset Textures
   Texture2D computer = std::get<Texture2D>(m_Assets.GetAsset("Computer").value());
@@ -92,6 +99,9 @@ void ScreenManager::LoadAllAssets() {
   BeginTextureMode(bg3);
     ClearBackground(YELLOW);
   EndTextureMode();
+  BeginTextureMode(bg4);
+    ClearBackground(ColorBrightness(DARKGRAY, 0.3));
+  EndTextureMode();
   // clang-format on
 
   RenderTexture2D obs_img = LoadRenderTexture(300, 100);
@@ -102,6 +112,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg1", bg.texture);
   m_Assets.AddAsset("bg2", bg2.texture);
   m_Assets.AddAsset("bg3", bg3.texture);
+  m_Assets.AddAsset("bg4", bg4.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
   Level conference_level("bg1", thumbnail_texture, "Level 1",
@@ -157,4 +168,22 @@ void ScreenManager::LoadAllAssets() {
                    ScenarioType::LevelBoss, &m_Assets);
   boss_level.AddHuman({680.0f, 400.0f}, false);
   m_Levels.push_back(boss_level);
+
+  Level final_boss_level("bg4", thumbnail4_texture, "Boss",
+                         ScenarioType::LevelFinalBoss, &m_Assets);
+
+  final_boss_level.SetFlySpawn(Vector2(200, 300));
+  final_boss_level.AddHuman({1400.0f, 400.0f}, false, true);
+
+  final_boss_level.AddObstacle(
+      {{0, 600, 20000, 800}, ColorBrightness(MAROON, -0.5f)}); //Floor
+
+  final_boss_level.AddObstacle({{650, 450, 80, 150}, GOLD, 5, 150,
+                               ObstacleType::Destructible}); //trophy
+  final_boss_level.AddObstacle({{1050, 300, 90, 300}, DARKBLUE, 6, 250,
+                               ObstacleType::Destructible}); //server rack
+  final_boss_level.AddObstacle({{1700, 480, 140, 120}, PURPLE, 4, 200,
+                               ObstacleType::Destructible}); //boss's desk
+
+  m_Levels.push_back(final_boss_level);
 }

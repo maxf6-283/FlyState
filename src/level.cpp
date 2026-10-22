@@ -23,6 +23,9 @@ void Level::OnEnter(Fly &fly) {
   for (const HumanSpawn &spawn : m_HumanSpawns) {
     m_Humans.emplace_back(spawn.position);
     m_Humans.back().SetForward(spawn.forward);
+    if (spawn.boss) {
+      m_Humans.back().MakeBoss();
+    }
   }
   for (HumanController &human : m_Humans) {
     human.SetParriedCallback([this]() { StartScreenShake(); });

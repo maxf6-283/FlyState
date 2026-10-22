@@ -35,6 +35,9 @@ public:
   void SetKeyboardAsset(Sound keyboard) { m_Keyboard = keyboard; }
   void SetClosest(bool closest);
   void SetForward(bool forward) { m_Model.SetForward(forward); }
+  // Bosses use their own colors, attack faster, start out chasing and throw
+  // projectiles at the fly when it is out of punching range
+  void MakeBoss();
   void SetParryAsset(Sound parry) { m_Parry = parry; }
   void SetParriedCallback(const std::function<void()> &callback) {
     m_ParriedCallback = callback;
@@ -48,7 +51,40 @@ public:
                                               std::vector<Obstacle> &obstacles);
 
 private:
+  struct Projectile {
+    Vector2 start;
+    Vector2 target;
+    float timer = 0.0f;
+    float duration = 0.0f;
+  };
+
+  // Scales an attack's windup/release time by the attack speed
+  float AttackTime(float time) const { return time / m_AttackSpeed; }
+
+  void ThrowProjectile(Vector2 target);
+  void UpdateProjectiles(Fly &fly, std::vector<Obstacle> &obstacles);
+  void DrawProjectiles() const;
+
   Human m_Model;
+
+  bool m_IsBoss = false;
+  // Bosses stay idle until the fly is within this horizontal/vertical
+  // distance, which roughly keeps them on screen when they start attacking
+  bool m_Activated = false;
+  Vector2 m_ActivationDistance = {400.0f, 400.0f};
+  float m_AttackSpeed = 1.0f;
+
+  Color m_LimbColor = BLUE;
+  Color m_FrontColor = GREEN;
+  Color m_BackColor = DARKGREEN;
+  Color m_BodyColor = ColorBrightness(BLUE, 0.1);
+
+  std::vector<Projectile> m_Projectiles;
+  float m_ThrowCooldown = 1.6f;
+  float m_ThrowTimer = 0.0f;
+  float m_ProjectileFlightTime = 1.0f;
+  float m_ProjectileArcHeight = 150.0f;
+  float m_ProjectileRadius = 20.0f;
 
   bool m_Staggered = false;
   float m_StaggerTimer = 0.0f;
