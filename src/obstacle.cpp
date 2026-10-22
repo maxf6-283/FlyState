@@ -44,7 +44,7 @@ void Obstacle::Draw() const {
   if (m_IsColored) {
     DrawRectangleRec(m_Area, ColorTint(m_Color, tint));
   } else {
-    DrawTextureRec(m_Image, m_Area, m_Position, tint);
+      DrawTexturePro(m_Image, { 0, 0, (float)m_Image.width, (float)m_Image.height }, m_Area, Vector2Zero(), 0.0f, WHITE);
   }
 }
 

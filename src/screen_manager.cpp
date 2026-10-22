@@ -44,6 +44,8 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.LoadAsset("assets/type.wav");
   m_Assets.LoadAsset("assets/verity.png");
   m_Assets.LoadAsset("assets/parry.wav");
+  m_Assets.LoadAsset("assets/Computer.png");
+  m_Assets.LoadAsset("assets/BasicBackground.png");
 
   // Rasterize the font above the largest UI size we currently use. Loading
   // the default 32px atlas and scaling it up makes the text visibly soft.
@@ -76,6 +78,10 @@ void ScreenManager::LoadAllAssets() {
   RenderTexture2D bg2 = LoadRenderTexture(3000, 1000);
   RenderTexture2D bg3 = LoadRenderTexture(1000, 1000);
 
+  // Sprite Asset Textures
+  Texture2D computer = std::get<Texture2D>(m_Assets.GetAsset("Computer").value());
+  //Texture2D cubicle2 = std::get<Texture2D>(m_Assets.GetAsset("ForegroundCubicle2").value());
+
   // clang-format off
   BeginTextureMode(bg);
     ClearBackground(ColorBrightness(RAYWHITE, 0.7));
@@ -98,7 +104,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg3", bg3.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
-  Level conference_level("bg1", thumbnail_texture, "Level 1",
+  Level conference_level("bg3", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
   conference_level.AddHuman({680.0f, 400.0f}, false);
@@ -106,7 +112,8 @@ void ScreenManager::LoadAllAssets() {
   conference_level.AddObstacle({{300, 400, 300, 100}, GRAY});
   conference_level.AddObstacle({{300, 400, 50, 300}, GRAY});
   conference_level.AddObstacle({{500, 400, 50, 300}, GRAY});
-  conference_level.AddObstacle({{450, 200, 50, 200}, BLACK});
+  conference_level.AddObstacle({{450, 210, 96, 192}, computer, 3, 50,
+                                ObstacleType::Destructible});
   conference_level.AddObstacle({Rectangle{1200, 300, 50, 100}, GOLD, 6, 100,
                                 ObstacleType::Destructible});
   conference_level.AddObstacle({Rectangle{1200, 400, 50, 500}, GRAY, 6, 100});
