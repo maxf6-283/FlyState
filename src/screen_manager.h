@@ -38,6 +38,8 @@ private:
   ScreenManager();
   void LoadAllAssets();
 
+  ScenarioType m_CurrentScenarioType = ScenarioType::MainMenu;
+
   Scenario *GetScenario(ScenarioType sceneType);
 
   Fly m_Fly{Vector2{static_cast<float>(GetRandomValue(0, GetScreenWidth())),

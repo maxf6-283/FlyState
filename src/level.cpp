@@ -88,7 +88,7 @@ void Level::Draw(const Fly &fly) const {
   drawCamera.target += m_ScreenShakeOffset;
   BeginMode2D(drawCamera);
 
-  DrawTexture(m_Background, 0, 0, WHITE);
+  DrawTexturePro(m_Background, { 0, 0, (float)m_Background.width, (float)m_Background.height }, {0, -200, 2000, 1000}, Vector2Zero(), 0.0f, WHITE);
 
   for (const Obstacle &obstacle : m_Obstacles) {
     obstacle.Draw();
@@ -104,10 +104,10 @@ void Level::Draw(const Fly &fly) const {
 
   const Font font = ScreenManager::Get().font();
   DrawTextEx(font, TextFormat("Destruction Caused: $%d", fly.Money()),
-             {20.0f, 20.0f}, 24.0f, 0.0f, DARKGRAY);
+             {20.0f, 20.0f}, 36.0f, 0.0f, BLACK);
   DrawTextEx(font,
              TextFormat("Employees Lost: %d", fly.HumansDestroyedCounter()),
-             {20.0f, 50.0f}, 24.0f, 0.0f, DARKGRAY);
+             {20.0f, 50.0f}, 36.0f, 0.0f, BLACK);
 
   float width = GetScreenWidth();
   float height = GetScreenHeight();

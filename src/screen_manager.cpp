@@ -9,19 +9,41 @@
 
 void ScreenManager::Draw() const { m_Scenario->Draw(m_Fly); }
 
-void ScreenManager::Update() { m_Scenario->Update(m_Fly); }
+void ScreenManager::Update() {
+    m_Scenario->Update(m_Fly);
+
+    Music mainMenuMusic = std::get<Music>(m_Assets.GetAsset("FlyStateMainMenu").value());
+    Music levelMusic = std::get<Music>(m_Assets.GetAsset("FlyStateGameBGM").value());
+
+    switch (m_CurrentScenarioType) {
+      case ScenarioType::MainMenu:
+      case ScenarioType::LevelSelect:
+      case ScenarioType::DeathScreen: {
+          StopMusicStream(levelMusic);
+          if (!IsMusicStreamPlaying(mainMenuMusic)) PlayMusicStream(mainMenuMusic);
+          UpdateMusicStream(mainMenuMusic);
+          break;
+      } default: {
+          StopMusicStream(mainMenuMusic);
+          if (!IsMusicStreamPlaying(levelMusic)) PlayMusicStream(levelMusic);
+          UpdateMusicStream(levelMusic);
+          break;
+      }
+    }
+}
 
 void ScreenManager::SwitchScenario(ScenarioType sceneType) {
   m_Scenario->OnExit(m_Fly);
   m_Scenario = GetScenario(sceneType);
+  m_CurrentScenarioType = sceneType;
   m_Scenario->OnEnter(m_Fly);
 }
 
 Scenario *ScreenManager::GetScenario(ScenarioType sceneType) {
   switch (sceneType) {
-  case ScenarioType::MainMenu:
-    return &m_MainMenu;
-  case ScenarioType::DeathScreen:
+  case ScenarioType::MainMenu: { 
+      return &m_MainMenu;
+  } case ScenarioType::DeathScreen:
     return &m_DeathScreen;
   case ScenarioType::EndScreen:
     return &m_EndScreen;
@@ -49,6 +71,9 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.LoadAsset("assets/intern.png");
   m_Assets.LoadAsset("assets/server_rack.png");
   m_Assets.LoadAsset("assets/ceo.png");
+  m_Assets.LoadAsset("assets/BasicBackground2.png");
+  m_Assets.LoadMusic("assets/FlyStateMainMenu.wav");
+  m_Assets.LoadMusic("assets/FlyStateGameBGM.wav");
 
   // Rasterize the font above the largest UI size we currently use. Loading
   // the default 32px atlas and scaling it up makes the text visibly soft.
@@ -118,7 +143,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg4", bg4.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
-  Level conference_level("bg1", thumbnail_texture, "The Intern",
+  Level conference_level("BasicBackground2", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
   Vector2 screenCenter = Vector2(bg.texture.width / 2, bg.texture.height / 2);
@@ -138,7 +163,7 @@ void ScreenManager::LoadAllAssets() {
 
   m_Levels.push_back(conference_level);
 
-  Level cubicle_level("bg2", thumbnail2_texture, "Cubicles",
+  Level cubicle_level("BasicBackground2", thumbnail2_texture, "Level 2",
                       ScenarioType::LevelCubicle, &m_Assets);
 
   cubicle_level.AddHuman({195.0f, 400.0f}, true); //left npc
@@ -163,11 +188,9 @@ void ScreenManager::LoadAllAssets() {
   cubicle_level.AddObstacle({ {1500, 400, 125, 200}, BLUE, 6, 200,
                             ObstacleType::Destructible}); //Water dispenser
 
-
-
   m_Levels.push_back(cubicle_level);
 
-  Level boss_level("bg3", thumbnail3_texture, "IT Dept.",
+  Level boss_level("BasicBackground2", thumbnail3_texture, "Dummy Level 3",
                    ScenarioType::LevelBoss, &m_Assets);
   Vector2 screenCenter2 = Vector2(bg3.texture.width / 2, bg3.texture.height / 2 -300);
   boss_level.SetFlySpawn(screenCenter2);
