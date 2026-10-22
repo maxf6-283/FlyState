@@ -215,9 +215,9 @@ void HumanController::Death(Fly &fly, std::vector<Obstacle> &obstacle) {
   m_DeathDone = true;
 
   Vector2 humanPos = m_Model.GetPosition();
-  Vector2 literallyHeaven = {humanPos.x + (forward ? 10000.0f : -10000.0f),
+  Vector2 literallyHeaven = {humanPos.x + (forward ? 1200.0f : -1200.0f),
                              0.0f};
-  m_Model.MoveTo(literallyHeaven, 5.0f);
+  m_Model.MoveTo(literallyHeaven, 0.6f);
 }
 
 void HumanController::Update(Fly &fly, std::vector<Obstacle> &obstacles) {
