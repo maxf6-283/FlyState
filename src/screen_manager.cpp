@@ -67,6 +67,10 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.LoadAsset("assets/verity.png");
   m_Assets.LoadAsset("assets/parry.wav");
   m_Assets.LoadAsset("assets/Computer.png");
+  m_Assets.LoadAsset("assets/BasicBackground.png");
+  m_Assets.LoadAsset("assets/intern.png");
+  m_Assets.LoadAsset("assets/server_rack.png");
+  m_Assets.LoadAsset("assets/ceo.png");
   m_Assets.LoadAsset("assets/BasicBackground2.png");
   m_Assets.LoadMusic("assets/FlyStateMainMenu.wav");
   m_Assets.LoadMusic("assets/FlyStateGameBGM.wav");
@@ -82,34 +86,34 @@ void ScreenManager::LoadAllAssets() {
   SetTextureFilter(m_Font.texture, TEXTURE_FILTER_BILINEAR);
 
   // dummy level
-  RenderTexture2D thumbnail = LoadRenderTexture(100, 100);
-  RenderTexture2D thumbnail2 = LoadRenderTexture(100, 100);
-  RenderTexture2D thumbnail4 = LoadRenderTexture(100, 100);
+  //RenderTexture2D thumbnail = LoadRenderTexture(100, 100);
+  //RenderTexture2D thumbnail2 = LoadRenderTexture(100, 100);
+  //RenderTexture2D thumbnail4 = LoadRenderTexture(100, 100);
 
   // clang-format off
-  BeginTextureMode(thumbnail);
-    ClearBackground(ORANGE);
-  EndTextureMode();
-  BeginTextureMode(thumbnail2);
+  //BeginTextureMode(thumbnail);
+  //  ClearBackground(ORANGE);
+  //EndTextureMode();
+  /*BeginTextureMode(thumbnail2);
     ClearBackground(LIME);
-  EndTextureMode();
+  EndTextureMode(); 
   BeginTextureMode(thumbnail4);
     ClearBackground(MAROON);
-  EndTextureMode();
+  EndTextureMode(); */
   // clang-format on
 
-  Image thumbnail_img = LoadImageFromTexture(thumbnail.texture);
-  Image thumbnail2_img = LoadImageFromTexture(thumbnail2.texture);
-  Image thumbnail3_img = LoadImage("assets/verity.png");
+  Image thumbnail_img = LoadImage("assets/intern.png");
+  Image thumbnail3_img = LoadImage("assets/server_rack.png");
+  Image thumbnail2_img = LoadImage("assets/verity.png");
   Texture2D thumbnail_texture = LoadTextureFromImage(thumbnail_img);
   Texture2D thumbnail2_texture = LoadTextureFromImage(thumbnail2_img);
   Texture2D thumbnail3_texture = LoadTextureFromImage(thumbnail3_img);
-  Image thumbnail4_img = LoadImageFromTexture(thumbnail4.texture);
+  Image thumbnail4_img = LoadImage("assets/ceo.png");
   Texture2D thumbnail4_texture = LoadTextureFromImage(thumbnail4_img);
 
   RenderTexture2D bg = LoadRenderTexture(2000, 1000);
   RenderTexture2D bg2 = LoadRenderTexture(3000, 1000);
-  RenderTexture2D bg3 = LoadRenderTexture(1000, 1000);
+  RenderTexture2D bg3 = LoadRenderTexture(2000, 1000);
   RenderTexture2D bg4 = LoadRenderTexture(2000, 1000);
 
   // Sprite Asset Textures
@@ -191,10 +195,31 @@ void ScreenManager::LoadAllAssets() {
 
   Level boss_level("BasicBackground2", thumbnail3_texture, "Dummy Level 3",
                    ScenarioType::LevelBoss, &m_Assets);
-  boss_level.AddHuman({680.0f, 400.0f}, false);
+  Vector2 screenCenter2 = Vector2(bg3.texture.width / 2, bg3.texture.height / 2 -300);
+  boss_level.SetFlySpawn(screenCenter2);
+  boss_level.AddHuman({ 195.0f, 400.0f }, true); //left npc
+  boss_level.AddHuman({680.0f, 400.0f}, false); //rifht npc
+  boss_level.AddObstacle({ {0, 600, 20000, 800}, GRAY }); //Floor
+  boss_level.AddObstacle({ {250, 425, 350, 100}, BROWN }); //desk top
+  boss_level.AddObstacle({ {300, 425, 50, 175}, BROWN });  //desk right leg
+  boss_level.AddObstacle({ {500, 425, 50, 175}, BROWN });  //desk left leg
+
+  boss_level.AddObstacle({ {450, 225, 50, 200}, BLACK, 4, 100,
+                            ObstacleType::Destructible }); //right computer
+  boss_level.AddObstacle({ {360, 225, 50, 200}, BLACK, 4, 100,
+                            ObstacleType::Destructible }); //left computer
+  boss_level.AddObstacle({ {260, 415, 50, 10}, BLACK, 2, 50,
+                            ObstacleType::Destructible }); //right keyboard
+  boss_level.AddObstacle({ {540, 415, 50, 10}, BLACK, 2, 50,
+                            ObstacleType::Destructible }); //left keyboard
+
+  boss_level.AddObstacle({ {1100, 0, 125, 600}, BROWN, 5, 20,
+                            ObstacleType::Destructible }); //"Door"
+  boss_level.AddObstacle({ {1500, 300, 200, 300}, DARKGREEN, 10, 200,
+                            ObstacleType::Destructible }); //Server Rack
   m_Levels.push_back(boss_level);
 
-  Level final_boss_level("bg4", thumbnail4_texture, "Boss",
+  Level final_boss_level("bg4", thumbnail4_texture, "CEO\n1964",
                          ScenarioType::LevelFinalBoss, &m_Assets);
 
   final_boss_level.SetFlySpawn(Vector2(200, 300));
