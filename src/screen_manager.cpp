@@ -139,7 +139,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg4", bg4.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
-  Level conference_level("bg1", thumbnail_texture, "Level 1",
+  Level conference_level("BasicBackground2", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
   Vector2 screenCenter = Vector2(bg.texture.width / 2, bg.texture.height / 2);
@@ -159,7 +159,7 @@ void ScreenManager::LoadAllAssets() {
 
   m_Levels.push_back(conference_level);
 
-  Level cubicle_level("bg1", thumbnail2_texture, "Level 2",
+  Level cubicle_level("BasicBackground2", thumbnail2_texture, "Level 2",
                       ScenarioType::LevelCubicle, &m_Assets);
 
   cubicle_level.AddHuman({195.0f, 400.0f}, true); //left npc
@@ -186,7 +186,7 @@ void ScreenManager::LoadAllAssets() {
 
   m_Levels.push_back(cubicle_level);
 
-  Level boss_level("bg3", thumbnail3_texture, "Dummy Level 3",
+  Level boss_level("BasicBackground2", thumbnail3_texture, "Dummy Level 3",
                    ScenarioType::LevelBoss, &m_Assets);
   boss_level.AddHuman({680.0f, 400.0f}, false);
   m_Levels.push_back(boss_level);
