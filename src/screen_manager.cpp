@@ -45,7 +45,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.LoadAsset("assets/verity.png");
   m_Assets.LoadAsset("assets/parry.wav");
   m_Assets.LoadAsset("assets/Computer.png");
-  m_Assets.LoadAsset("assets/BasicBackground.png");
+  m_Assets.LoadAsset("assets/BasicBackground2.png");
 
   // Rasterize the font above the largest UI size we currently use. Loading
   // the default 32px atlas and scaling it up makes the text visibly soft.
@@ -104,7 +104,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg3", bg3.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
-  Level conference_level("bg3", thumbnail_texture, "Level 1",
+  Level conference_level("bg1", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
   Vector2 screenCenter = Vector2(bg.texture.width / 2, bg.texture.height / 2);
@@ -124,7 +124,7 @@ void ScreenManager::LoadAllAssets() {
 
   m_Levels.push_back(conference_level);
 
-  Level cubicle_level("bg2", thumbnail2_texture, "Level 2",
+  Level cubicle_level("bg1", thumbnail2_texture, "Level 2",
                       ScenarioType::LevelCubicle, &m_Assets);
 
   cubicle_level.AddHuman({195.0f, 400.0f}, true); //left npc
