@@ -133,7 +133,7 @@ void HumanController::Work(Fly &fly, std::vector<Obstacle> &obstacle) {
     PlaySound(m_Keyboard);
   }
   bool forward = m_Model.GetForward();
-  Vector2 position = m_Model.GetPosition();
+  Vector2 position = m_Model.GetPosition() - Vector2(0, 50);
   position += (forward ? Vector2{70.0f, 50.0f} : Vector2{-70.0f, 50.0f});
 
   m_Model.LeftSlap(position, 0.1, 0.3);

@@ -24,6 +24,9 @@ public:
     m_HumanSpawns.push_back({position, forward});
   }
   void AddObstacle(Obstacle obstacle) { m_Obstacles.push_back(obstacle); }
+  void SetFlySpawn(Vector2 position) {
+      m_SpawnPosition = position;
+  }
 
   void OnEnter(Fly &fly) override;
   void OnExit(Fly &fly) override;
@@ -40,6 +43,8 @@ public:
   ScenarioType scenario_type() const { return m_ScenarioType; };
 
 private:
+   Vector2 m_SpawnPosition;
+
   const std::string m_Name;
   const ScenarioType m_ScenarioType;
   const Texture2D m_ThumbnailTexture;

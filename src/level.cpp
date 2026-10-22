@@ -55,13 +55,13 @@ void Level::OnEnter(Fly &fly) {
   // TODO: define level-specific starting positions for the fly
   const Vector2 fly_start_pos =
       Vector2{m_Background.width / 2.0f, m_Background.height / 2.0f};
-  const Vector2 fly_screen_pos = fly.position();
+  const Vector2 fly_screen_pos = m_SpawnPosition;
 
-  fly.SetPos(fly_start_pos);
+  fly.SetPos(m_SpawnPosition);
 
   // calculate camera pos so that the fly starts at the same point on screen.
-  m_Camera.target.x = fly_start_pos.x - fly_screen_pos.x;
-  m_Camera.target.y = fly_start_pos.y - fly_screen_pos.y;
+  m_Camera.target.x = 0.0f;
+  m_Camera.target.y = 0.0f;
 
   m_Camera.zoom = 1.0;
   m_Camera.rotation = 0.0;

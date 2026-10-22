@@ -176,17 +176,19 @@ void Human::Update() {
         switch (armAction.windupState) {
         case ArmAction::WindupState::Begin:
           armAction.windupState = ArmAction::WindupState::Windup;
-        case ArmAction::WindupState::Windup:
-          if (left) {
-            LeftArmTo(armAction.target - Vector2{0.0f, 100.0f},
-                      armAction.windupTime);
-          } else {
-            RightArmTo(armAction.target - Vector2{0.0f, 100.0f},
-                       armAction.windupTime);
-          }
-          armAction.windupState = ArmAction::WindupState::Release;
-          break;
-        case ArmAction::WindupState::Release:
+        case ArmAction::WindupState::Windup: {
+            float height = 20.0f;
+            if (left) {
+                LeftArmTo(armAction.target - Vector2{ 0.0f, height },
+                    armAction.windupTime);
+            }
+            else {
+                RightArmTo(armAction.target - Vector2{ 0.0f, height },
+                    armAction.windupTime);
+            }
+            armAction.windupState = ArmAction::WindupState::Release;
+            break;
+        } case ArmAction::WindupState::Release:
           if (left) {
             LeftArmTo(armAction.target, armAction.releaseTime);
           } else {

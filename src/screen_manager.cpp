@@ -107,6 +107,10 @@ void ScreenManager::LoadAllAssets() {
   Level conference_level("bg3", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
+  Vector2 screenCenter = Vector2(bg.texture.width / 2, bg.texture.height / 2);
+
+  conference_level.SetFlySpawn(screenCenter);
+
   conference_level.AddHuman({680.0f, 400.0f}, false);
   conference_level.AddObstacle({{0, 600, 20000, 800}, GRAY});
   conference_level.AddObstacle({{300, 400, 300, 100}, GRAY});
@@ -123,21 +127,23 @@ void ScreenManager::LoadAllAssets() {
   Level cubicle_level("bg2", thumbnail2_texture, "Level 2",
                       ScenarioType::LevelCubicle, &m_Assets);
 
-  cubicle_level.AddHuman({150.0f, 400.0f}, true); //left npc
-  cubicle_level.AddHuman({700.0f, 400.0f}, false); //right npc
+  cubicle_level.AddHuman({195.0f, 400.0f}, true); //left npc
+  cubicle_level.AddHuman({660.0f, 400.0f}, false); //right npc
+
+  cubicle_level.SetFlySpawn(Vector2(1000, 400));
 
   cubicle_level.AddObstacle({{0, 600, 20000, 800}, GRAY}); //Floor
-  cubicle_level.AddObstacle({{250, 400, 350, 100}, GRAY}); //desk top
-  cubicle_level.AddObstacle({{300, 400, 50, 300}, GRAY});  //desk right leg
-  cubicle_level.AddObstacle({{500, 400, 50, 300}, GRAY});  //desk left leg
+  cubicle_level.AddObstacle({{250, 425, 350, 100}, BROWN}); //desk top
+  cubicle_level.AddObstacle({{300, 425, 50, 175}, BROWN});  //desk right leg
+  cubicle_level.AddObstacle({{500, 425, 50, 175}, BROWN});  //desk left leg
 
-  cubicle_level.AddObstacle({{450, 200, 50, 200}, BLACK, 4, 100,
+  cubicle_level.AddObstacle({{450, 225, 50, 200}, BLACK, 4, 100,
                             ObstacleType::Destructible}); //right computer
-  cubicle_level.AddObstacle({ {360, 200, 50, 200}, BLACK, 4, 100,
+  cubicle_level.AddObstacle({ {360, 225, 50, 200}, BLACK, 4, 100,
                             ObstacleType::Destructible }); //left computer
-  cubicle_level.AddObstacle({ {260, 390, 50, 10}, BLACK, 2, 50,
+  cubicle_level.AddObstacle({ {260, 415, 50, 10}, BLACK, 2, 50,
                             ObstacleType::Destructible }); //right keyboard
-  cubicle_level.AddObstacle({ {540, 390, 50, 10}, BLACK, 2, 50,
+  cubicle_level.AddObstacle({ {540, 415, 50, 10}, BLACK, 2, 50,
                             ObstacleType::Destructible }); //left keyboard
 
   cubicle_level.AddObstacle({ {1500, 400, 125, 200}, BLUE, 6, 200,
