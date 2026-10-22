@@ -12,6 +12,13 @@ std::string AssetKey(const std::string &filePath) {
 }
 }
 
+void AssetMap::LoadMusic(const std::string& filepath) {
+    const std::string key = AssetKey(filepath);
+    const size_t dot = filepath.find_last_of('.');
+    const std::string extension = dot == std::string::npos ? "" : filepath.substr(dot);
+   m_Assets[key] = LoadMusicStream(filepath.c_str());
+}
+
 void AssetMap::LoadAsset(const std::string &filePath) {
   const std::string key = AssetKey(filePath);
   const size_t dot = filePath.find_last_of('.');

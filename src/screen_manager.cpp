@@ -9,19 +9,41 @@
 
 void ScreenManager::Draw() const { m_Scenario->Draw(m_Fly); }
 
-void ScreenManager::Update() { m_Scenario->Update(m_Fly); }
+void ScreenManager::Update() {
+    m_Scenario->Update(m_Fly);
+
+    Music mainMenuMusic = std::get<Music>(m_Assets.GetAsset("FlyStateMainMenu").value());
+    Music levelMusic = std::get<Music>(m_Assets.GetAsset("FlyStateGameBGM").value());
+
+    switch (m_CurrentScenarioType) {
+      case ScenarioType::MainMenu:
+      case ScenarioType::LevelSelect:
+      case ScenarioType::DeathScreen: {
+          StopMusicStream(levelMusic);
+          if (!IsMusicStreamPlaying(mainMenuMusic)) PlayMusicStream(mainMenuMusic);
+          UpdateMusicStream(mainMenuMusic);
+          break;
+      } default: {
+          StopMusicStream(mainMenuMusic);
+          if (!IsMusicStreamPlaying(levelMusic)) PlayMusicStream(levelMusic);
+          UpdateMusicStream(levelMusic);
+          break;
+      }
+    }
+}
 
 void ScreenManager::SwitchScenario(ScenarioType sceneType) {
   m_Scenario->OnExit(m_Fly);
   m_Scenario = GetScenario(sceneType);
+  m_CurrentScenarioType = sceneType;
   m_Scenario->OnEnter(m_Fly);
 }
 
 Scenario *ScreenManager::GetScenario(ScenarioType sceneType) {
   switch (sceneType) {
-  case ScenarioType::MainMenu:
-    return &m_MainMenu;
-  case ScenarioType::DeathScreen:
+  case ScenarioType::MainMenu: { 
+      return &m_MainMenu;
+  } case ScenarioType::DeathScreen:
     return &m_DeathScreen;
   case ScenarioType::EndScreen:
     return &m_EndScreen;
@@ -46,6 +68,8 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.LoadAsset("assets/parry.wav");
   m_Assets.LoadAsset("assets/Computer.png");
   m_Assets.LoadAsset("assets/BasicBackground2.png");
+  m_Assets.LoadMusic("assets/FlyStateMainMenu.wav");
+  m_Assets.LoadMusic("assets/FlyStateGameBGM.wav");
 
   // Rasterize the font above the largest UI size we currently use. Loading
   // the default 32px atlas and scaling it up makes the text visibly soft.
@@ -159,8 +183,6 @@ void ScreenManager::LoadAllAssets() {
 
   cubicle_level.AddObstacle({ {1500, 400, 125, 200}, BLUE, 6, 200,
                             ObstacleType::Destructible}); //Water dispenser
-
-
 
   m_Levels.push_back(cubicle_level);
 

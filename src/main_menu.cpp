@@ -6,9 +6,12 @@
 #include "fly.h"
 #include "screen_manager.h"
 
-void MainMenu::OnEnter(Fly &fly) { m_StartButton.Reset(); }
+void MainMenu::OnEnter(Fly &fly) { 
+    m_StartButton.Reset();
 
-void MainMenu::OnExit(Fly &fly) {}
+}
+
+void MainMenu::OnExit(Fly& fly) {}
 
 void MainMenu::Draw(const Fly &fly) const {
   ClearBackground(Color{190, 190, 190, 255});
@@ -35,6 +38,7 @@ void MainMenu::Draw(const Fly &fly) const {
 
 void MainMenu::Update(Fly &fly) {
   fly.Update();
+
   m_StartButton.Update(fly);
 }
 

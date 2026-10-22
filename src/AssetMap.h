@@ -7,10 +7,11 @@
 #include <unordered_map>
 #include <variant>
 
-using Asset = std::variant<Texture2D, Sound>;
+using Asset = std::variant<Texture2D, Sound, Music>;
 
 class AssetMap {
 public:
+	void LoadMusic(const std::string &filepath);
   void LoadAsset(const std::string &filePath);
   void AddAsset(const std::string &key, Asset asset);
 
