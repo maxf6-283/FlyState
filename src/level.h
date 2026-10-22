@@ -20,8 +20,8 @@ public:
         m_ThumbnailTexture(thumbnail_texture), m_BackgroundKey(background_key),
         m_AssetMap(asset_map) {}
 
-  void AddHuman(Vector2 position, bool forward) {
-    m_HumanSpawns.push_back({position, forward});
+  void AddHuman(Vector2 position, bool forward, bool boss = false) {
+    m_HumanSpawns.push_back({position, forward, boss});
   }
   void AddObstacle(Obstacle obstacle) { m_Obstacles.push_back(obstacle); }
   void SetFlySpawn(Vector2 position) {
@@ -56,6 +56,7 @@ private:
   struct HumanSpawn {
     Vector2 position;
     bool forward;
+    bool boss;
   };
   std::vector<HumanSpawn> m_HumanSpawns;
 

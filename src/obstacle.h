@@ -34,6 +34,9 @@ public:
   int hits() const { return m_Hits; }
   ObstacleState state() const { return m_State; }
   bool IsDestroyed() const { return m_State == ObstacleState::Destroyed; }
+  bool IsDestructible() const {
+    return m_Type == ObstacleType::Destructible;
+  }
 
 private:
   Rectangle m_Area;

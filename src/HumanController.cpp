@@ -70,6 +70,10 @@ HumanController::FlyHitCallback(Fly &fly, std::vector<Obstacle> &obstacles) {
     }
 
     for (Obstacle &obstacle : *obstaclePtr) {
+      // Already broken objects shouldn't pay out or count as broken again
+      if (obstacle.IsDestroyed()) {
+        continue;
+      }
       Rectangle obstacleBounds = obstacle.area();
       if (CheckCollisionCircleRec(handPos, 40.0f, obstacleBounds)) {
         obstacle.IncrementHitCounter();
@@ -78,7 +82,15 @@ HumanController::FlyHitCallback(Fly &fly, std::vector<Obstacle> &obstacles) {
           if (m_ObjectDestroyedCallback) {
             m_ObjectDestroyedCallback(obstacle.value(), obstacle.position());
           }
-          m_State = State::Death;
+          // Bosses only go down once everything breakable is broken
+          bool allDestroyed = std::all_of(
+              obstaclePtr->begin(), obstaclePtr->end(),
+              [](const Obstacle &other) {
+                return !other.IsDestructible() || other.IsDestroyed();
+              });
+          if (!m_IsBoss || allDestroyed) {
+            m_State = State::Death;
+          }
         }
       }
     }
@@ -106,7 +118,13 @@ void HumanController::Chase(Fly &fly, std::vector<Obstacle> &obstacle) {
     bool forward = m_Model.GetForward();
     float offset = forward ? 60.0f : -60.0f;
 
-    if (m_Model.RightArmState() == Human::ArmState::Any) {
+    if (m_IsBoss && m_ThrowTimer <= 0.0f &&
+        m_Model.RightArmState() == Human::ArmState::Any) {
+      ThrowProjectile(flyPosition);
+    } else if (m_Model.RightArmState() == Human::ArmState::Any &&
+               !(m_IsBoss && m_ThrowTimer > m_ThrowCooldown - 0.2f)) {
+      // Bosses hold their throwing pose for a moment before going back to
+      // swinging their arms
       m_Model.RightArmTo(Vector2{leftFoot.x + offset, humanPos.y + 30.0f},
                          0.1f);
     }
@@ -117,8 +135,10 @@ void HumanController::Chase(Fly &fly, std::vector<Obstacle> &obstacle) {
     }
   } else {
     auto punchEnd = FlyHitCallback(fly, obstacle);
-    m_Model.LeftPunch(flyPosition, 0.2, 0.15, {punchEnd});
-    m_Model.RightPunch(flyPosition, 0.25, 0.15, {punchEnd});
+    m_Model.LeftPunch(flyPosition, AttackTime(0.2), AttackTime(0.15),
+                      {punchEnd});
+    m_Model.RightPunch(flyPosition, AttackTime(0.25), AttackTime(0.15),
+                       {punchEnd});
   }
 }
 
@@ -155,8 +175,8 @@ void HumanController::AnnoyedWork(Fly &fly, std::vector<Obstacle> &obstacle) {
   } else {
     auto slapEnd = FlyHitCallback(fly, obstacle);
     StopSound(m_Keyboard);
-    m_Model.LeftSlap(flyPosition, 0.4, 0.1, {slapEnd});
-    m_Model.RightSlap(flyPosition, 0.5, 0.1, {slapEnd});
+    m_Model.LeftSlap(flyPosition, AttackTime(0.4), AttackTime(0.1), {slapEnd});
+    m_Model.RightSlap(flyPosition, AttackTime(0.5), AttackTime(0.1), {slapEnd});
   }
 }
 
@@ -173,8 +193,10 @@ void HumanController::AggressiveStand(Fly &fly,
 
   if (flyHumanDist < 60000) {
     auto punchEnd = FlyHitCallback(fly, obstacle);
-    m_Model.LeftPunch(flyPosition, 0.3, 0.15, {punchEnd});
-    m_Model.RightPunch(flyPosition, 0.4, 0.15, {punchEnd});
+    m_Model.LeftPunch(flyPosition, AttackTime(0.3), AttackTime(0.15),
+                      {punchEnd});
+    m_Model.RightPunch(flyPosition, AttackTime(0.4), AttackTime(0.15),
+                       {punchEnd});
   } else {
     m_Model.StabilizeBody();
   }
@@ -201,6 +223,8 @@ void HumanController::Death(Fly &fly, std::vector<Obstacle> &obstacle) {
 void HumanController::Update(Fly &fly, std::vector<Obstacle> &obstacles) {
   // TODO: Use obstacles :)
   (void)obstacles;
+  UpdateProjectiles(fly, obstacles);
+
   if (m_Staggered) {
     m_StaggerTimer += GetFrameTime();
 
@@ -210,6 +234,20 @@ void HumanController::Update(Fly &fly, std::vector<Obstacle> &obstacles) {
     }
     return;
   }
+  // Bosses stand still until the fly gets close enough to see them, so they
+  // don't attack from off-screen
+  if (m_IsBoss && !m_Activated) {
+    Vector2 toFly = fly.position() - m_Model.GetPosition();
+    m_Activated = fabs(toFly.x) < m_ActivationDistance.x &&
+                  fabs(toFly.y) < m_ActivationDistance.y;
+    if (!m_Activated) {
+      m_Model.StabilizeBody();
+      m_Model.Update();
+      return;
+    }
+    m_BodyTarget = m_Model.GetPosition();
+  }
+
   switch (m_State) {
   case State::Work: {
     Work(fly, obstacles);
@@ -255,10 +293,11 @@ void HumanController::Draw() const {
   Vector2 elbow = {initialX, shoulder.y + 90.0f};
   Vector2 hand = {initialX, elbow.y + 90.0f};
 
-  auto drawLimb = [](Vector2 root, IKSolver::Output limb, Color pointColor,
-                     bool hand = false) {
-    DrawLineEx(root, limb.mid, 10.0f, BLUE);
-    DrawLineEx(limb.mid, limb.effect, 10.0f, BLUE);
+  Color limbColor = m_LimbColor;
+  auto drawLimb = [limbColor](Vector2 root, IKSolver::Output limb,
+                              Color pointColor, bool hand = false) {
+    DrawLineEx(root, limb.mid, 10.0f, limbColor);
+    DrawLineEx(limb.mid, limb.effect, 10.0f, limbColor);
 
     DrawCircleV(root, 10.0f, pointColor);
     DrawCircleV(limb.mid, 10.0f, pointColor);
@@ -271,27 +310,29 @@ void HumanController::Draw() const {
 
   auto drawBack = [&]() {
     if (forward) {
-      drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, DARKGREEN);
-      drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, DARKGREEN, true);
+      drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, m_BackColor);
+      drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, m_BackColor, true);
     } else {
-      drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
-      drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN, true);
+      drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, m_FrontColor);
+      drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, m_FrontColor,
+               true);
     }
   };
 
   auto drawFront = [&]() {
     if (forward) {
-      drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, GREEN);
-      drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, GREEN, true);
+      drawLimb(rightLeg.root, {rightLeg.mid, rightLeg.effect}, m_FrontColor);
+      drawLimb(rightArm.root, {rightArm.mid, rightArm.effect}, m_FrontColor,
+               true);
     } else {
-      drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, DARKGREEN);
-      drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, DARKGREEN, true);
+      drawLimb(leftLeg.root, {leftLeg.mid, leftLeg.effect}, m_BackColor);
+      drawLimb(leftArm.root, {leftArm.mid, leftArm.effect}, m_BackColor, true);
     }
   };
 
   drawBack();
 
-  Color body = ColorBrightness(BLUE, 0.1);
+  Color body = m_BodyColor;
 
   // lower and upper body
   DrawCircleV(lowerBody, 45.0f, body);
@@ -300,4 +341,68 @@ void HumanController::Draw() const {
   drawFront();
 
   m_Model.DrawTargetIndicators();
+  DrawProjectiles();
+}
+
+void HumanController::MakeBoss() {
+  m_IsBoss = true;
+  m_AttackSpeed = 1.6f;
+  m_State = State::Chase;
+  m_ActivationDistance = {300.0f, 300.0f};
+
+  m_LimbColor = MAROON;
+  m_FrontColor = BLACK;
+  m_BackColor = DARKGRAY;
+  m_BodyColor = ColorBrightness(MAROON, -0.2f);
+}
+
+void HumanController::ThrowProjectile(Vector2 target) {
+  m_ThrowTimer = m_ThrowCooldown;
+
+  Vector2 hand = m_Model.GetRightHand();
+  m_Projectiles.push_back({hand, target, 0.0f, m_ProjectileFlightTime});
+
+  // Fling the arm towards the target for a bit of a throwing motion
+  Vector2 throwDirection = Vector2Normalize(target - hand);
+  m_Model.RightArmTo(hand + throwDirection * 120.0f, 0.15f);
+}
+
+void HumanController::UpdateProjectiles(Fly &fly,
+                                        std::vector<Obstacle> &obstacles) {
+  m_ThrowTimer = std::max(0.0f, m_ThrowTimer - GetFrameTime());
+
+  for (auto projectile = m_Projectiles.begin();
+       projectile != m_Projectiles.end();) {
+    projectile->timer += GetFrameTime();
+    if (projectile->timer >= projectile->duration) {
+      // Landing works just like a punch landing at the target, so it can
+      // hit or be parried by the fly and break obstacles
+      Vector2 target = projectile->target;
+      projectile = m_Projectiles.erase(projectile);
+      FlyHitCallback(fly, obstacles)(target);
+    } else {
+      ++projectile;
+    }
+  }
+}
+
+void HumanController::DrawProjectiles() const {
+  for (const Projectile &projectile : m_Projectiles) {
+    float t = Clamp(projectile.timer / projectile.duration, 0.0f, 1.0f);
+
+    // Landing indicator: a disc that fills in as the projectile closes in,
+    // yellow to orange, then red just before it lands
+    Color color = (t < 0.75f) ? ColorLerp(YELLOW, ORANGE, t / 0.75f) : RED;
+    float landingRadius = m_ProjectileRadius * 2.0f;
+    DrawCircleV(projectile.target, landingRadius * t, Fade(color, 0.35f));
+    DrawRing(projectile.target, landingRadius - 3.0f, landingRadius, 0.0f,
+             360.0f, 32, color);
+
+    // The projectile itself travels in an arc towards the target
+    Vector2 position = Vector2Lerp(projectile.start, projectile.target, t);
+    position.y -= m_ProjectileArcHeight * sinf(PI * t);
+    DrawCircleV(position, m_ProjectileRadius, m_LimbColor);
+    DrawRing(position, m_ProjectileRadius - 3.0f, m_ProjectileRadius, 0.0f,
+             360.0f, 32, BLACK);
+  }
 }
