@@ -42,6 +42,7 @@ public:
 
   void Reset();
   void SetBuzzAsset(Sound buzz) { m_Buzz = buzz; }
+  void SetFlyTexture(Texture2D fly) { m_FlySprite = fly; }
 
 private:
   Vector2 m_position;
@@ -51,6 +52,8 @@ private:
   bool m_CanBuzz = false;
   int m_Money = 0;
   int m_HumansDestroyedCounter = 0;
+
+  Texture2D m_FlySprite;
 
   bool m_CanDash = true;
   bool m_Dashing = false;

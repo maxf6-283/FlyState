@@ -70,6 +70,9 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.LoadAsset("assets/BasicBackground2.png");
   m_Assets.LoadMusic("assets/FlyStateMainMenu.wav");
   m_Assets.LoadMusic("assets/FlyStateGameBGM.wav");
+  m_Assets.LoadAsset("assets/Fly.png");
+
+  m_Fly.SetFlyTexture(std::get<Texture2D>(m_Assets.GetAsset("Fly").value()));
 
   // Rasterize the font above the largest UI size we currently use. Loading
   // the default 32px atlas and scaling it up makes the text visibly soft.

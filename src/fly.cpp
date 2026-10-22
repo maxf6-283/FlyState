@@ -121,7 +121,7 @@ bool Fly::CanDash() const { return !m_Dashing && m_CanDash; }
 bool Fly::IsInvincible() const { return m_Dashing; }
 
 void Fly::Draw() const {
-  DrawCircleV(m_position, 15, MAROON);
+    DrawTexturePro(m_FlySprite, {0, 0, (float)m_FlySprite.width, (float)m_FlySprite.height}, { m_position.x - 15, m_position.y - 15, 30, 30}, Vector2Zero(), 0.0f, WHITE);
   if (m_Parrying) {
     DrawCircleLinesEx(m_position, 20.0f, 2.0f, ColorBrightness(MAROON, -0.5));
   }
