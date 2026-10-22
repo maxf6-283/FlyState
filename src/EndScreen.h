@@ -5,7 +5,9 @@
 
 class EndScreen : public Scenario {
 public:
-  EndScreen() : m_ReplayButton(GetReplayButton()) {}
+  EndScreen()
+      : m_ReplayButton(GetReplayButton()),
+        m_LevelSelectButton(GetLevelSelectButton()) {}
 
   void OnEnter(Fly &fly) override;
   void OnExit(Fly &fly) override;
@@ -15,7 +17,11 @@ public:
 
 private:
   Button m_ReplayButton;
+  Button m_LevelSelectButton;
 
+  static Button MakeButton(int buttonX, void (*onClick)());
   static Button GetReplayButton();
+  static Button GetLevelSelectButton();
   static void ReplayButtonOnClick();
+  static void LevelSelectButtonOnClick();
 };

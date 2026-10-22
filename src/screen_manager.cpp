@@ -104,7 +104,7 @@ void ScreenManager::LoadAllAssets() {
   m_Assets.AddAsset("bg3", bg3.texture);
   m_Assets.AddAsset("obstacle", obs_img.texture);
 
-  Level conference_level("bg3", thumbnail_texture, "Level 1",
+  Level conference_level("bg1", thumbnail_texture, "Level 1",
                          ScenarioType::LevelConference, &m_Assets);
 
   Vector2 screenCenter = Vector2(bg.texture.width / 2, bg.texture.height / 2);
